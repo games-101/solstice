@@ -155,6 +155,30 @@ textarea{width:100%;min-height:70px;font-family:var(--mono);font-size:12px;backg
 .tiers dd{margin:0}
 .inl{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.2em}
 
+
+/* tutorial */
+.tut{display:grid;gap:12px}
+.tut .step{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.tut h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0}
+.tut p{margin:0 0 8px;max-width:62ch}
+.trow{display:flex;align-items:center;gap:0;margin:6px 0;flex-wrap:nowrap}
+.tcell{width:52px;height:52px;border:1px solid var(--grid);background:var(--cell);border-radius:6px;display:grid;place-items:center;cursor:pointer;padding:0;position:relative}
+.tcell.given{background:var(--given);cursor:default}
+.tcell svg{width:70%;height:70%}
+.tcell.bad{background:var(--bad-soft);border-color:var(--bad)}
+.tcell.focus{box-shadow:0 0 0 3px var(--sun)}
+.tsign{width:20px;text-align:center;font-family:var(--mono);font-weight:600;color:var(--ink)}
+.tfeed{min-height:1.5em;font-size:14px}
+.tfeed.ok{color:var(--good)} .tfeed.no{color:var(--bad)}
+.tnav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tdots{display:flex;gap:6px;margin-left:auto}
+.tdots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.tdots i.on{background:var(--accent)}
+.tlist{margin:0;padding-left:20px}
+.tlist li{margin-bottom:4px}
+.banner{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.banner span{flex:1;min-width:200px}
+@media (max-width:560px){.tcell{width:40px;height:40px}.tsign{width:14px}}
 @media (max-width:900px){ .main{grid-template-columns:minmax(0,1fr)} }
 @media (max-width:560px){
   .levels{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -175,7 +199,7 @@ textarea{width:100%;min-height:70px;font-family:var(--mono);font-size:12px;backg
       <nav class="viewtabs" aria-label="View">
         <button id="vPlay" aria-pressed="true">Play</button>
         <button id="vProg" aria-pressed="false">Progress</button>
-        <button id="vHelp" aria-pressed="false">How to play</button>
+        <button id="vHelp" aria-pressed="false">Tutorial &amp; rules</button>
       </nav>
       <button class="themebtn" id="bTheme" aria-pressed="false"></button>
     </div>
@@ -184,6 +208,11 @@ textarea{width:100%;min-height:70px;font-family:var(--mono);font-size:12px;backg
   <div class="levels" id="levels" role="group" aria-label="Difficulty"></div>
 
   <section id="playView">
+    <div class="banner" id="tutBanner" hidden>
+      <span>New to Solstice? A short tutorial walks through the rules and the main ways of reasoning, with small examples to try.</span>
+      <button class="btn primary" id="bnStart">Start the tutorial</button>
+      <button class="btn" id="bnSkip">Skip</button>
+    </div>
     <div class="main">
       <div class="boardcard">
         <div class="boardhead">
@@ -281,6 +310,19 @@ textarea{width:100%;min-height:70px;font-family:var(--mono);font-size:12px;backg
 
   <section id="helpView" hidden>
     <div class="prog">
+      <div class="panel tut" id="tut" aria-live="polite">
+        <div class="step" id="tStep"></div>
+        <h2 id="tTitle"></h2>
+        <div id="tBody"></div>
+        <div id="tBoard"></div>
+        <div class="tfeed" id="tFeed"></div>
+        <div class="tnav">
+          <button class="btn" id="tBack">Back</button>
+          <button class="btn primary" id="tNext">Next</button>
+          <button class="btn" id="tReset">Reset this example</button>
+          <div class="tdots" id="tDots"></div>
+        </div>
+      </div>
       <div class="panel howto">
         <h3>Rules</h3>
         <ol>
@@ -1227,7 +1269,7 @@ function showView(v) {
   $('vPlay').setAttribute('aria-pressed', String(v === 'play')); $('vProg').setAttribute('aria-pressed', String(v === 'prog')); $('vHelp').setAttribute('aria-pressed', String(v === 'help'));
   $('levels').hidden = v === 'help'; if (v === 'prog') renderProgress(); lastTick = performance.now();
 }
-$('vPlay').onclick = () => showView('play'); $('vProg').onclick = () => { persist(); showView('prog'); }; $('vHelp').onclick = () => showView('help');
+$('vPlay').onclick = () => showView('play'); $('vProg').onclick = () => { persist(); showView('prog'); }; $('vHelp').onclick = () => { tutI = 0; tutRender(); showView('help'); };
 function renderProgress() {
   let rows = '<tr><th>Level</th><th>Solved</th><th>Without help</th><th>Hints used</th><th>Best</th><th>Average</th><th>Generated solved</th></tr>';
   LEVELS.forEach(L => {
@@ -1268,7 +1310,65 @@ $('resetYes').onclick = () => {
 };
 window.addEventListener('pagehide', persist);
 
+// ---------- tutorial ----------
+// Row examples: g = given values (0 open), s = signs between neighbours (0 none, 1 '=', 2 '×'), a = answer.
+const TUT = [
+  { title: 'The goal', body: '<p>Fill every cell with a sun or a moon. Each row and each column of the 6×6 grid holds <b>3 suns and 3 moons</b>.</p><p>Tap a cell to cycle: blank → sun → moon. Shaded cells are given and cannot be changed.</p><p><b>Try it:</b> this row already has its 3 suns. Fill the three open cells.</p>',
+    g: [1, 0, 1, 0, 1, 0], s: [0, 0, 0, 0, 0], a: [1, 2, 1, 2, 1, 2], done: 'Correct. Once a row or column has 3 of one symbol, every other cell in it is the opposite symbol.' },
+  { title: 'No three in a row', body: '<p>No more than <b>two equal symbols</b> may sit next to each other, across or down.</p><p>So two suns side by side must be followed, on both sides, by a moon.</p><p><b>Try it:</b> fill the row. Start with the cell next to the two suns.</p>',
+    g: [1, 1, 0, 2, 0, 2], s: [0, 0, 0, 0, 0], a: [1, 1, 2, 2, 1, 2], done: 'Correct. The third cell had to be a moon to avoid three suns. That gave the row its 3 moons, so the last open cell had to be a sun.' },
+  { title: 'Gaps count too', body: '<p>Two equal symbols with one cell between them force the middle cell: a moon, gap, moon means the gap is a sun, because a moon there would make three in a row.</p><p><b>Try it:</b> fill the row.</p>',
+    g: [2, 0, 2, 1, 0, 1], s: [0, 0, 0, 0, 0], a: [2, 1, 2, 1, 2, 1], done: 'Correct. Both gaps were forced by the symbols on either side of them.' },
+  { title: 'Signs between cells', body: '<p>An <b>=</b> between two cells means they hold the same symbol. An <b>×</b> means they hold different symbols.</p><p>A sign next to a filled cell settles the other cell straight away.</p><p><b>Try it:</b> fill the row, following the signs outward from the given suns.</p>',
+    g: [0, 1, 0, 0, 1, 0], s: [2, 1, 2, 0, 0], a: [2, 1, 1, 2, 1, 2], done: 'Correct. The signs gave the first four cells; then the row had its 3 suns, so the last cell was a moon.' },
+  { title: 'Checking a whole line', body: '<p>Sometimes no single rule applies. Then look at the row or column as a whole and ask: <i>what if this cell were the other symbol?</i></p><p>Here the <b>=</b> pair in the middle must be two suns or two moons. Two moons would sit next to the given moon and make three in a row. So the pair is two suns.</p><p><b>Try it:</b> fill the row.</p>',
+    g: [1, 0, 0, 0, 2, 0], s: [0, 0, 1, 0, 0], a: [1, 2, 1, 1, 2, 2], done: 'Correct. After the = pair became two suns, the row had its 3 suns and the rest were moons. In the game, hints call this a line check.' },
+  { title: 'Longer chains of reasoning', body: '<p>Hard and Master puzzles need one more idea, used across the whole grid rather than one line.</p><ol class="tlist"><li>Pick a cell and assume it holds one symbol.</li><li>Fill in only what that assumption forces, using the rules above.</li><li>If a rule breaks (three in a row, a fourth sun in a line, a broken sign), the assumption was wrong, so the cell holds the other symbol.</li></ol><p>Good cells to test are ones next to signs or in rows and columns that are nearly full, because they force the most. The <b>Hint</b> button shows these chains step by step when you need one.</p>' },
+  { title: 'Tools in the game', body: '<ul class="tlist"><li><b>Hint</b> gives the next logical step and explains why it holds. After a hint the button rests for 30 seconds, and the number of hints is shown when you finish.</li><li><b>Check this cell</b>: select a cell you filled to see whether it follows from the board.</li><li><b>Check board</b> marks wrong cells in red; it adds 15 seconds to your time.</li><li><b>Undo</b>, <b>Redo</b> and <b>Restart</b>; keyboard: arrows, S, M, Space, Backspace, Z, Y.</li><li><b>Share a puzzle</b> gives a code so a friend can play the same grid.</li><li>Progress is saved in your browser. The <b>Progress</b> tab shows your times.</li></ul><p>Easy puzzles 1–20 are warm-ups that use only the first four rules. A good place to begin is Warm-up 1.</p>', last: true },
+];
+let tutI = 0, tutRow = null;
+function tutRender() {
+  const L = TUT[tutI];
+  $('tStep').textContent = 'Step ' + (tutI + 1) + ' of ' + TUT.length;
+  $('tTitle').textContent = L.title; $('tBody').innerHTML = L.body; $('tFeed').textContent = ''; $('tFeed').className = 'tfeed';
+  $('tDots').innerHTML = TUT.map((_, k) => '<i class="' + (k === tutI ? 'on' : '') + '"></i>').join('');
+  $('tBack').disabled = tutI === 0; $('tNext').textContent = L.last ? 'Play Warm-up 1' : 'Next';
+  $('tReset').hidden = !L.g;
+  if (L.g) { tutRow = L.g.slice(); tutDraw(); } else $('tBoard').innerHTML = '';
+}
+function tutDraw() {
+  const L = TUT[tutI]; let html = '<div class="trow">';
+  for (let j = 0; j < 6; j++) {
+    const v = tutRow[j], bad = v && v !== L.a[j];
+    html += '<button class="tcell' + (L.g[j] ? ' given' : '') + (bad ? ' bad' : '') + '" data-j="' + j + '" aria-label="Cell ' + (j + 1) + ' ' + (v === 1 ? 'sun' : v === 2 ? 'moon' : 'blank') + '">' + (v === 1 ? SUN : v === 2 ? MOON : '') + '</button>';
+    if (j < 5) html += '<span class="tsign">' + (L.s[j] === 1 ? '=' : L.s[j] === 2 ? '×' : '') + '</span>';
+  }
+  $('tBoard').innerHTML = html + '</div>';
+  $('tBoard').querySelectorAll('.tcell').forEach(b => b.onclick = () => {
+    const j = +b.dataset.j; if (L.g[j]) return;
+    tutRow[j] = (tutRow[j] + 1) % 3; tutDraw(); tutFeedback();
+  });
+}
+function tutFeedback() {
+  const L = TUT[tutI], f = $('tFeed');
+  const wrong = tutRow.some((v, j) => v && v !== L.a[j]);
+  if (wrong) { f.textContent = 'Not quite: the cell marked in red cannot hold that symbol. Tap it again to change it.'; f.className = 'tfeed no'; return; }
+  if (tutRow.every((v, j) => v === L.a[j])) { f.textContent = L.done; f.className = 'tfeed ok'; return; }
+  f.textContent = ''; f.className = 'tfeed';
+}
+$('tBack').onclick = () => { if (tutI > 0) { tutI--; tutRender(); } };
+$('tNext').onclick = () => {
+  if (TUT[tutI].last) { store.set.tutSeen = true; save(); $('tutBanner').hidden = true; goLevel('easy'); openPuzzle(LIST.easy[0]); return; }
+  tutI++; tutRender();
+};
+$('tReset').onclick = () => tutRender();
+function startTutorial() { tutI = 0; tutRender(); showView('help'); window.scrollTo(0, 0); }
+$('bnStart').onclick = () => { store.set.tutSeen = true; save(); $('tutBanner').hidden = true; startTutorial(); };
+$('bnSkip').onclick = () => { store.set.tutSeen = true; save(); $('tutBanner').hidden = true; };
+tutRender();
+
 openPuzzle(store.last && PUZ[store.last] ? store.last : LIST.easy[0]);
+if (!store.set.tutSeen && !Object.keys(store.p).some(id => store.p[id].done)) $('tutBanner').hidden = false;
 })();
 
 </script>
