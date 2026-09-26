@@ -1,0 +1,1275 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style></head><body>
+<title>Solstice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#ECEEF3; --paper:#F6F7FA; --ink:#1F2238; --ink-2:#4B5170; --ink-3:#7F859E;
+  --line:#D3D8E2; --grid:#C4CAD9; --frame:#2A2E4A;
+  --cell:#FCFCFE; --given:#E3E6EF;
+  --sun:#F0A020; --sun-edge:#B8740A; --sun-soft:#FBE8C2;
+  --moon:#4A67D6; --moon-edge:#2D46A6; --moon-soft:#DDE4FA;
+  --accent:#3563C9; --accent-soft:#DBE4F6;
+  --bad:#C2413A; --bad-soft:#F6D7D4; --good:#2F7D5B; --good-soft:#D5EEE2;
+  --shadow:0 1px 2px rgba(27,33,64,.08),0 8px 24px rgba(27,33,64,.06);
+  --display:"Young Serif",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+:root,:root[data-theme="dark"]{color-scheme:light}
+body.so-dark{
+  color-scheme:dark;
+  --ground:#161A29; --paper:#1E2336; --ink:#E4E7F1; --ink-2:#B0B6CE; --ink-3:#7F87A6;
+  --line:#323954; --grid:#3A425F; --frame:#C9CEE0;
+  --cell:#252B42; --given:#323955;
+  --sun:#F5B642; --sun-edge:#9A6206; --sun-soft:#4A3A18;
+  --moon:#93A9FF; --moon-edge:#5E78E0; --moon-soft:#27305A;
+  --accent:#8EA6F5; --accent-soft:#2A3560;
+  --bad:#F07A70; --bad-soft:#4A2328; --good:#6BCB9C; --good-soft:#1F3B31;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;margin-bottom:18px}
+.brand h1{font-family:var(--display);font-weight:400;font-size:38px;line-height:1;margin:0}
+.brand h1 .a{color:var(--sun)} .brand h1 .b{color:var(--moon)}
+.brand p{margin:6px 0 0;color:var(--ink-2);font-size:14px;max-width:54ch}
+.topright{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.viewtabs{display:flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:4px}
+.viewtabs button{border:0;background:transparent;padding:6px 14px;border-radius:7px;cursor:pointer;font-weight:500;color:var(--ink-2)}
+.viewtabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.themebtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 12px;cursor:pointer;font-weight:500;color:var(--ink-2)}
+.themebtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+.levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:18px}
+.lvl{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:10px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.lvl .nm{font-family:var(--display);font-size:19px;line-height:1.1}
+.lvl .meta{font-size:12px;color:var(--ink-3);font-family:var(--mono)}
+.lvl .bar{height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
+.lvl .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--sun),var(--moon))}
+.lvl[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.lvl.master .nm{color:var(--bad)}
+[hidden]{display:none!important}
+.modal{position:fixed;inset:0;background:rgba(15,18,32,.55);display:grid;place-items:center;padding:16px;z-index:50}
+.modal .card{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:14px;max-width:440px;width:100%;padding:20px 22px;box-shadow:var(--shadow)}
+.modal h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0 0 8px;color:var(--bad)}
+.modal p{margin:0 0 10px}
+.modal .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.boardcard{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.boardhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.boardhead h2{font-family:var(--display);font-weight:400;font-size:23px;margin:0}
+.boardhead .rule{font-size:13px;color:var(--ink-2)}
+.timer{font-family:var(--mono);font-size:28px;font-variant-numeric:tabular-nums}
+.timer small{font-size:13px;color:var(--ink-3);margin-left:6px}
+
+.boardwrap{display:grid;grid-template-columns:18px 1fr;grid-template-rows:18px 1fr;gap:4px;max-width:600px;margin:0 auto}
+.colnums,.rownums{display:grid;font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:center;align-items:center}
+.rownums{grid-template-rows:repeat(var(--n),minmax(0,1fr))}
+.colnums{grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+.board{position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));grid-template-rows:repeat(var(--n),minmax(0,1fr));aspect-ratio:1;width:100%;max-width:100%;border:3px solid var(--frame);border-radius:6px;background:var(--grid);gap:1px;touch-action:manipulation;user-select:none;-webkit-user-select:none;container-type:inline-size}
+.cell{position:relative;background:var(--cell);cursor:pointer;min-width:0;min-height:0}
+.cell.given{background:var(--given);cursor:default}
+.cell .m{position:absolute;inset:14%;pointer-events:none}
+.cell .m svg{width:100%;height:100%;display:block}
+.sunI circle,.sunI path{fill:var(--sun);stroke:var(--sun-edge);stroke-width:1}
+.sunI line{stroke:var(--sun);stroke-width:2.2;stroke-linecap:round}
+.moonI path{fill:var(--moon);stroke:var(--moon-edge);stroke-width:1}
+.cell.cursor{box-shadow:inset 0 0 0 2px var(--accent)}
+.cell.err{background:var(--bad-soft)}
+.cell.wrong::after{content:"";position:absolute;inset:3px;border:2px dashed var(--bad);border-radius:3px;pointer-events:none}
+.cell.hl-line{filter:brightness(.92) saturate(1.2)}
+.cell.hl-target::after{content:"";position:absolute;inset:2px;border:3px solid var(--sun);border-radius:4px;pointer-events:none}
+.sign{position:absolute;transform:translate(-50%,-50%);width:calc(100% / var(--n) * .42);aspect-ratio:1;border-radius:50%;background:var(--paper);border:1px solid var(--grid);display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:calc(100cqw / var(--n) * .3);line-height:1;color:var(--ink);pointer-events:none;z-index:2}
+.sign.bad{background:var(--bad);color:#fff;border-color:var(--bad)}
+.board.won .m{animation:pop .7s ease-out}
+@keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.board.won .m{animation:none}}
+
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;justify-content:center}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 12px;cursor:pointer;font-weight:500;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn.gold{background:var(--sun-soft);border-color:var(--sun)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn .cd{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.btn .k{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--paper);padding:7px 12px;cursor:pointer;font-weight:500;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.stat{display:inline-flex;flex-direction:column;line-height:1.15}
+.stat small{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2)}
+.stat span{font-family:var(--mono);font-size:18px;font-variant-numeric:tabular-nums}
+
+.side{display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.panel h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:600}
+.reason{min-height:120px}
+.reason .tier{display:inline-block;font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);margin-bottom:6px}
+.reason .tier.t5,.reason .tier.t6{background:var(--bad-soft);color:var(--bad)}
+.reason .tier.ok{background:var(--good-soft);color:var(--good)}
+.reason p{margin:0 0 8px}
+.reason ol{margin:6px 0 8px;padding-left:20px;font-size:13px;color:var(--ink-2);max-height:180px;overflow:auto}
+.reason .acts{display:flex;gap:8px;flex-wrap:wrap}
+.opts-list{display:flex;flex-direction:column;gap:4px;margin:0 0 10px}
+.optrow{display:flex;gap:2px}
+.oc{width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);border-radius:4px;background:var(--cell)}
+.oc svg{width:18px;height:18px}
+.oc.of{border:2px solid var(--sun);background:var(--sun-soft)}
+.muted{color:var(--ink-3);font-size:13px}
+.plist{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.pchip{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 0 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;font-family:var(--mono);font-size:13px;line-height:1.2}
+.plhead{grid-column:1/-1;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:600;margin-top:4px}
+.plhead:first-child{margin-top:0}
+.pchip small{font-size:10px;color:var(--ink-3)}
+.pchip.solved{background:var(--sun-soft);border-color:var(--sun)}
+.pchip.solved small{color:var(--ink-2)}
+.pchip.started{border-style:dashed;border-color:var(--ink-3)}
+.pchip[aria-current="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+.genrow{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.codebox{flex:1;min-width:0;font-family:var(--mono);font-size:12px;background:var(--ground);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+.opts{display:flex;flex-direction:column;gap:6px;font-size:14px}
+.opts label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.opts input{accent-color:var(--accent)}
+.done{margin-top:14px;border:1px solid var(--sun);background:var(--sun-soft);border-radius:10px;padding:12px 14px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.done b{font-family:var(--display);font-weight:400;font-size:22px}
+
+.prog{display:grid;gap:16px}
+.ptable{width:100%;border-collapse:collapse;font-size:14px}
+.ptable th,.ptable td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+.ptable th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600}
+.ptable td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+textarea{width:100%;min-height:70px;font-family:var(--mono);font-size:12px;background:var(--ground);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+.howto ol{margin:0;padding-left:20px}
+.howto li{margin-bottom:4px}
+.tiers{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.tiers dt{font-family:var(--mono);font-size:12px;color:var(--accent);padding-top:2px}
+.tiers dd{margin:0}
+.inl{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.2em}
+
+@media (max-width:900px){ .main{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:560px){
+  .levels{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brand h1{font-size:30px}
+  .boardcard{padding:10px}
+  .timer{font-size:22px}
+  .boardwrap{grid-template-columns:14px 1fr;grid-template-rows:14px 1fr}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1><span class="a">Sol</span><span class="b">stice</span></h1>
+      <p>A sun-and-moon logic puzzle. Every puzzle has exactly one solution, and it can be reached by reasoning alone, without guessing.</p>
+    </div>
+    <div class="topright">
+      <nav class="viewtabs" aria-label="View">
+        <button id="vPlay" aria-pressed="true">Play</button>
+        <button id="vProg" aria-pressed="false">Progress</button>
+        <button id="vHelp" aria-pressed="false">How to play</button>
+      </nav>
+      <button class="themebtn" id="bTheme" aria-pressed="false"></button>
+    </div>
+  </header>
+
+  <div class="levels" id="levels" role="group" aria-label="Difficulty"></div>
+
+  <section id="playView">
+    <div class="main">
+      <div class="boardcard">
+        <div class="boardhead">
+          <div>
+            <h2 id="ptitle">Puzzle</h2>
+            <div class="rule" id="prule"></div>
+          </div>
+          <div class="timer" id="timer" aria-live="off">00:00<small></small></div>
+        </div>
+        <div class="boardwrap" id="bwrap">
+          <div></div>
+          <div class="colnums" id="colnums"></div>
+          <div class="rownums" id="rownums"></div>
+          <div class="board" id="board" role="grid" aria-label="Puzzle grid"></div>
+        </div>
+        <div class="tools">
+          <div class="seg" role="group" aria-label="Tap places">
+            <button id="mCycle" aria-pressed="true" title="Tap cycles: blank, sun, moon">Cycle</button>
+            <button id="mSun" aria-pressed="false" title="Tap toggles a sun">Sun</button>
+            <button id="mMoon" aria-pressed="false" title="Tap toggles a moon">Moon</button>
+          </div>
+          <button class="btn" id="bUndo">Undo <span class="k">Z</span></button>
+          <button class="btn" id="bRedo">Redo <span class="k">Y</span></button>
+          <button class="btn" id="bClear">Restart</button>
+        </div>
+        <div class="tools">
+          <button class="btn gold" id="bHint" title="After a hint, the button rests for 30 seconds">Hint</button>
+          <button class="btn" id="bWhy">Check this cell</button>
+          <button class="btn" id="bCheck">Check board <span class="k">+15s</span></button>
+        </div>
+        <div id="doneCard" hidden></div>
+        <div id="clearConfirm" class="done" hidden style="border-color:var(--bad);background:var(--bad-soft)">
+          <span>Clear the board and reset the timer for this puzzle?</span>
+          <button class="btn primary" id="clearYes">Restart puzzle</button>
+          <button class="btn" id="clearNo">Keep playing</button>
+        </div>
+      </div>
+
+      <aside class="side">
+        <div class="panel reason" aria-live="polite">
+          <h3>Reasoning</h3>
+          <div id="reasonBody"></div>
+        </div>
+        <div class="panel">
+          <h3 id="listTitle">Puzzles</h3>
+          <div class="plist" id="plist"></div>
+          <div class="genrow">
+            <button class="btn" id="bGen">Generate a new puzzle</button>
+            <span class="muted" id="genStatus"></span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Share a puzzle</h3>
+          <p class="muted" style="margin:0 0 8px">Give a friend this code so they play exactly the same grid. The code holds only the clues, not the answer.</p>
+          <div class="genrow" style="margin-top:0">
+            <input type="text" class="codebox" id="shareCode" readonly aria-label="Share code for this puzzle">
+            <button class="btn" id="bCopyCode">Copy</button>
+          </div>
+          <div class="genrow">
+            <input type="text" class="codebox" id="loadCode" placeholder="Paste a share code" aria-label="Share code to load">
+            <button class="btn" id="bLoad">Load</button>
+          </div>
+          <p class="muted" id="shareMsg" style="margin:6px 0 0"></p>
+        </div>
+        <div class="panel">
+          <h3>Options</h3>
+          <div class="opts">
+            <label><input type="checkbox" id="oErr" checked> Highlight broken rules</label>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="progView" hidden>
+    <div class="prog">
+      <div class="panel">
+        <h3>Your progress</h3>
+        <div class="scroll"><table class="ptable" id="ptable"></table></div>
+        <p class="muted" id="storeNote"></p>
+      </div>
+      <div class="panel">
+        <h3>Move progress to another browser</h3>
+        <p class="muted" style="margin-top:0">Copy this code, then paste it into Import on the other device.</p>
+        <textarea id="exportBox" readonly></textarea>
+        <div class="genrow"><button class="btn" id="bCopy">Copy code</button><span class="muted" id="copyMsg"></span></div>
+        <p class="muted">Import a code:</p>
+        <textarea id="importBox" placeholder="Paste a progress code here"></textarea>
+        <div class="genrow"><button class="btn" id="bImport">Import</button><span class="muted" id="importMsg"></span></div>
+        <div class="genrow"><button class="btn" id="bReset">Erase all progress</button>
+          <span id="resetConfirm" hidden><span class="muted">This cannot be undone.</span> <button class="btn primary" id="resetYes">Erase</button> <button class="btn" id="resetNo">Cancel</button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="helpView" hidden>
+    <div class="prog">
+      <div class="panel howto">
+        <h3>Rules</h3>
+        <ol>
+          <li>Fill every cell with a sun or a moon.</li>
+          <li>Each row and each column holds the same number of suns and moons (3 of each on the 6×6 grid).</li>
+          <li>No more than two equal symbols may sit next to each other in a row or column.</li>
+          <li>Cells joined by <b>=</b> hold the same symbol. Cells joined by <b>×</b> hold different symbols.</li>
+          <li>Shaded cells are given at the start and cannot be changed.</li>
+        </ol>
+      </div>
+      <div class="panel howto">
+        <h3>Controls</h3>
+        <ol>
+          <li>Tap a cell to cycle blank → sun → moon. The Sun and Moon modes make a tap toggle only that symbol.</li>
+          <li>Keyboard: arrow keys move, <b>S</b> sun, <b>M</b> moon, <b>Space</b> cycles, <b>Backspace</b> clears, <b>Z</b>/<b>Y</b> undo/redo.</li>
+          <li>Cells are named by row and column, for example R3C5 is row 3, column 5.</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3>How difficulty is rated</h3>
+        <p style="margin-top:0">Each puzzle is solved by a reasoning engine that always uses the simplest technique available. The rating depends on the hardest techniques it needed and how often it needed them.</p>
+        <dl class="tiers">
+          <dt>Trivial</dt><dd>A sign next to a filled cell, or a row or column that already has all of one symbol.</dd>
+          <dt>Basic</dt><dd>No three in a row: two equal symbols side by side, or with a gap between them, force the neighbouring cell.</dd>
+          <dt>Simple</dt><dd>Line analysis with up to 4 open cells: only a few ways to finish the row or column, and they all agree on a cell.</dd>
+          <dt>Intermediate</dt><dd>Line analysis with 5 to 7 open cells.</dd>
+          <dt>Advanced</dt><dd>Line analysis with 8 or more open cells.</dd>
+          <dt>Contradiction</dt><dd>Assume a cell and follow forced steps (up to Simple) until a rule breaks.</dd>
+          <dt>Deep contradiction</dt><dd>A contradiction chain that needs Intermediate or Advanced steps along the way.</dd>
+        </dl>
+        <p class="muted">All levels use a 6×6 grid; difficulty comes from the reasoning required. Easy puzzles 1–20 are warm-ups that need only signs, counts and no three in a row; puzzles 21–50 add a few short line checks. Medium needs longer line checks, on rows or columns with 5 or more open cells. Hard needs one to three short contradiction chains (up to 4 steps). Master needs several contradiction chains and starts with very few filled cells.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="dareModal" hidden role="dialog" aria-modal="true" aria-labelledby="dareTitle">
+  <div class="card">
+    <h2 id="dareTitle">Master · Dare to try</h2>
+    <p>These puzzles cannot be finished with pattern-spotting alone. Several times per puzzle you will need to assume a cell, follow what it forces, and find where it breaks a rule.</p>
+    <p class="muted">They start with very few filled cells. Most players will want Hard first.</p>
+    <div class="acts"><button class="btn" id="dareBack">Back to Hard</button><button class="btn primary" id="dareGo">Take the challenge</button></div>
+  </div>
+</div>
+
+<script id="engine">
+/* Solstice engine: sun/moon binary grid puzzle.
+   Rules: n x n (n even). Every row and column holds n/2 suns and n/2 moons.
+   No three equal symbols next to each other in a row or column.
+   '=' between two cells: same symbol. 'x' between two cells: different symbols.
+   Cell values: 0 unknown, 1 sun, 2 moon. */
+(function (root) {
+  'use strict';
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function popcount(x) { let c = 0; while (x) { x &= x - 1; c++; } return c; }
+  function shuffle(a, rng) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  const SYM = ['', 'sun', 'moon'], SYMS = ['', 'suns', 'moons'];
+
+  const PAT = {};
+  function patterns(n) {
+    if (PAT[n]) return PAT[n];
+    const full = (1 << n) - 1, out = [];
+    for (let m = 0; m <= full; m++) {
+      if (popcount(m) !== n / 2) continue;
+      const z = ~m & full;
+      if (m & (m >> 1) & (m >> 2)) continue;
+      if (z & (z >> 1) & (z >> 2)) continue;
+      out.push(m);
+    }
+    return (PAT[n] = out);
+  }
+
+  // puzzle: {n, givens:Int8Array(n*n), h:Int8Array(n*(n-1)) row r edge c between (r,c)-(r,c+1), v:Int8Array((n-1)*n) edge r*n+c between (r,c)-(r+1,c)}; edge 0 none, 1 '=', 2 'x'
+  function makeGeom(P) {
+    const n = P.n, N = n * n, lines = [], edges = [], cellEdges = [];
+    for (let i = 0; i < N; i++) cellEdges.push([]);
+    for (let r = 0; r < n; r++) { const cells = []; for (let c = 0; c < n; c++) cells.push(r * n + c); lines.push({ type: 'row', idx: r, cells }); }
+    for (let c = 0; c < n; c++) { const cells = []; for (let r = 0; r < n; r++) cells.push(r * n + c); lines.push({ type: 'col', idx: c, cells }); }
+    for (let r = 0; r < n; r++) for (let c = 0; c < n - 1; c++) { const t = P.h[r * (n - 1) + c]; if (t) edges.push({ a: r * n + c, b: r * n + c + 1, t }); }
+    for (let r = 0; r < n - 1; r++) for (let c = 0; c < n; c++) { const t = P.v[r * n + c]; if (t) edges.push({ a: r * n + c, b: (r + 1) * n + c, t }); }
+    edges.forEach(e => { cellEdges[e.a].push({ o: e.b, t: e.t }); cellEdges[e.b].push({ o: e.a, t: e.t }); });
+    // in-line sign masks
+    lines.forEach(L => {
+      let eq = 0, ne = 0;
+      for (let j = 0; j < n - 1; j++) {
+        const t = L.type === 'row' ? P.h[L.idx * (n - 1) + j] : P.v[j * n + L.idx];
+        if (t === 1) eq |= 1 << j; else if (t === 2) ne |= 1 << j;
+      }
+      L.eq = eq; L.ne = ne;
+    });
+    return { n, N, half: n / 2, lines, edges, cellEdges, pats: patterns(n), givens: P.givens, P };
+  }
+  function cellLabel(G, c) { return 'R' + (((c / G.n) | 0) + 1) + 'C' + (c % G.n + 1); }
+  function lineLabel(G, l) { const L = G.lines[l]; return (L.type === 'row' ? 'Row ' : 'Column ') + (L.idx + 1); }
+  function listCells(G, cells, max) {
+    max = max || 6; const labs = cells.slice(0, max).map(c => cellLabel(G, c));
+    if (cells.length > max) return labs.join(', ') + ' and ' + (cells.length - max) + ' more';
+    return labs.length <= 1 ? labs.join('') : labs.slice(0, -1).join(', ') + ' and ' + labs[labs.length - 1];
+  }
+
+  function lineMasks(G, s, L) {
+    let S = 0, M = 0; const cells = L.cells;
+    for (let j = 0; j < cells.length; j++) { const v = s[cells[j]]; if (v === 1) S |= 1 << j; else if (v === 2) M |= 1 << j; }
+    return { S, M };
+  }
+  function compatible(G, L, S, M) {
+    const n = G.n, low = (1 << (n - 1)) - 1, out = [];
+    for (const p of G.pats) {
+      if ((p & S) !== S || (p & M) !== 0) continue;
+      const x = (p ^ (p >> 1)) & low;
+      if ((x & L.eq) !== 0 || (x & L.ne) !== L.ne) continue;
+      out.push(p);
+    }
+    return out;
+  }
+
+  // ---------- exact counter ----------
+  function countSolutions(P, limit, nodeBudget) {
+    limit = limit || 2; let nodes = 0, over = false;
+    const n = P.n, half = n / 2, full = (1 << n) - 1, low = (1 << (n - 1)) - 1, pats = patterns(n);
+    const gS = [], gM = [], hEq = [], hNe = [], vEq = [], vNe = [];
+    for (let r = 0; r < n; r++) {
+      let s = 0, m = 0, e = 0, x = 0;
+      for (let c = 0; c < n; c++) { const g = P.givens[r * n + c]; if (g === 1) s |= 1 << c; else if (g === 2) m |= 1 << c; }
+      for (let c = 0; c < n - 1; c++) { const t = P.h[r * (n - 1) + c]; if (t === 1) e |= 1 << c; else if (t === 2) x |= 1 << c; }
+      gS.push(s); gM.push(m); hEq.push(e); hNe.push(x);
+      let ve = 0, vx = 0;
+      if (r < n - 1) for (let c = 0; c < n; c++) { const t = P.v[r * n + c]; if (t === 1) ve |= 1 << c; else if (t === 2) vx |= 1 << c; }
+      vEq.push(ve); vNe.push(vx);
+    }
+    const rowCand = [];
+    for (let r = 0; r < n; r++) rowCand.push(pats.filter(p => (p & gS[r]) === gS[r] && (p & gM[r]) === 0 && ((((p ^ (p >> 1)) & low) & hEq[r]) === 0) && ((((p ^ (p >> 1)) & low) & hNe[r]) === hNe[r])));
+    const colS = new Int8Array(n);
+    let count = 0, first = null; const rows = new Array(n);
+    function rec(r, p1, p2) {
+      if (count >= limit) return;
+      if (nodeBudget && ++nodes > nodeBudget) { over = true; count = limit; return; }
+      if (r === n) { count++; if (!first) first = rows.slice(); return; }
+      const rem = n - r;
+      for (let c = 0; c < n; c++) { const su = colS[c], mo = r - su; if (su > half || mo > half || su + rem < half || mo + rem < half) return; }
+      for (const p of rowCand[r]) {
+        if (r > 0) { const d = p ^ p1; if ((d & vEq[r - 1]) !== 0 || (d & vNe[r - 1]) !== vNe[r - 1]) continue; }
+        if (r > 1) { if (p & p1 & p2) continue; if (~p & ~p1 & ~p2 & full) continue; }
+        let ok = true;
+        for (let c = 0; c < n; c++) if (p >> c & 1) { if (colS[c] >= half) { ok = false; break; } } else if (r - colS[c] >= half) { ok = false; break; }
+        if (!ok) continue;
+        for (let c = 0; c < n; c++) if (p >> c & 1) colS[c]++;
+        rows[r] = p; rec(r + 1, p, p1);
+        for (let c = 0; c < n; c++) if (p >> c & 1) colS[c]--;
+        if (count >= limit) return;
+      }
+    }
+    rec(0, 0, 0);
+    let solution = null;
+    if (first) { solution = new Int8Array(n * n); for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) solution[r * n + c] = (first[r] >> c & 1) ? 1 : 2; }
+    return { count, solution, over };
+  }
+
+  // ---------- deductions ----------
+  const TIER_NAMES = ['Trivial', 'Basic', 'Simple', 'Intermediate', 'Advanced', 'Contradiction', 'Deep contradiction'];
+
+  function lineRange(G, cells) { return cellLabel(G, cells[0]) + '–' + cellLabel(G, cells[cells.length - 1]); }
+  function findContradiction(G, s) {
+    const n = G.n, half = G.half;
+    for (let l = 0; l < G.lines.length; l++) {
+      const L = G.lines[l], cells = L.cells; let su = 0, mo = 0;
+      for (const c of cells) { if (s[c] === 1) su++; else if (s[c] === 2) mo++; }
+      if (su > half) return { line: l, text: lineLabel(G, l) + ' would have ' + su + ' suns (only ' + half + ' allowed)' };
+      if (mo > half) return { line: l, text: lineLabel(G, l) + ' would have ' + mo + ' moons (only ' + half + ' allowed)' };
+      for (let j = 0; j + 2 < n; j++) { const a = s[cells[j]]; if (a && a === s[cells[j + 1]] && a === s[cells[j + 2]]) return { line: l, cells: [cells[j], cells[j + 1], cells[j + 2]], text: lineRange(G, [cells[j], cells[j + 2]]) + ' would be three ' + SYMS[a] + ' in a row' }; }
+    }
+    for (const e of G.edges) {
+      const a = s[e.a], b = s[e.b];
+      if (a && b && ((e.t === 1) !== (a === b))) return { cells: [e.a, e.b], text: cellLabel(G, e.a) + ' and ' + cellLabel(G, e.b) + ' would break the ' + (e.t === 1 ? '=' : '×') + ' sign between them' };
+    }
+    for (let l = 0; l < G.lines.length; l++) {
+      const L = G.lines[l]; const { S, M } = lineMasks(G, s, L);
+      if (!compatible(G, L, S, M).length) return { line: l, text: lineLabel(G, l) + ' could not be finished: no arrangement of its open cells follows the rules' };
+    }
+    return null;
+  }
+
+  function stepSign(G, s) {
+    for (const e of G.edges) {
+      for (const [x, y] of [[e.a, e.b], [e.b, e.a]]) {
+        if (s[x] && !s[y]) {
+          const v = e.t === 1 ? s[x] : 3 - s[x], X = cellLabel(G, x), Y = cellLabel(G, y);
+          return { tier: 0, kind: 'sign', set: [[y, v]], cells: [x, y], lines: [],
+            short: Y + ' is a ' + SYM[v] + ' (' + (e.t === 1 ? '=' : '×') + ' with ' + X + ')',
+            text: X + ' is a ' + SYM[s[x]] + '. ' + (e.t === 1 ? 'The = sign means ' + Y + ' matches it' : 'The × sign means ' + Y + ' is the opposite') + ', so ' + Y + ' is a ' + SYM[v] + '.' };
+        }
+      }
+    }
+    return null;
+  }
+  function stepCount(G, s) {
+    for (let l = 0; l < G.lines.length; l++) {
+      const cells = G.lines[l].cells; let su = 0, mo = 0; const open = [];
+      for (const c of cells) { if (s[c] === 1) su++; else if (s[c] === 2) mo++; else open.push(c); }
+      if (!open.length) continue;
+      for (const full of [1, 2]) {
+        if ((full === 1 ? su : mo) !== G.half) continue;
+        const v = 3 - full, many = open.length > 1;
+        return { tier: 0, kind: 'count', set: open.map(c => [c, v]), cells: open, lines: [l],
+          short: listCells(G, open) + (many ? ' are ' + SYMS[v] : ' is a ' + SYM[v]) + ' (' + lineLabel(G, l) + ' already has ' + G.half + ' ' + SYMS[full] + ')',
+          text: lineLabel(G, l) + ' already has its ' + G.half + ' ' + SYMS[full] + ', so ' + (many ? 'its remaining cells (' + listCells(G, open) + ') are ' + SYMS[v] : 'its last open cell, ' + listCells(G, open) + ', is a ' + SYM[v]) + '.' };
+      }
+    }
+    return null;
+  }
+  function stepTriple(G, s) {
+    const n = G.n;
+    for (let l = 0; l < G.lines.length; l++) {
+      const cells = G.lines[l].cells;
+      for (let j = 0; j + 2 < n; j++) {
+        const a = cells[j], b = cells[j + 1], c = cells[j + 2];
+        const va = s[a], vb = s[b], vc = s[c];
+        if (va && va === vb && !vc) return mk(c, va, [a, b], false, l);
+        if (vb && vb === vc && !va) return mk(a, vb, [b, c], false, l);
+        if (va && va === vc && !vb) return mk(b, va, [a, c], true, l);
+      }
+    }
+    return null;
+    function mk(cell, w, pair, between, l) {
+      const C = cellLabel(G, cell), P = cellLabel(G, pair[0]) + ' and ' + cellLabel(G, pair[1]);
+      return { tier: 1, kind: 'triple', set: [[cell, 3 - w]], cells: pair.concat([cell]), lines: [l],
+        short: C + ' is a ' + SYM[3 - w] + ' (avoids three ' + SYMS[w] + ')',
+        text: P + ' are both ' + SYMS[w] + '. A ' + SYM[w] + ' ' + (between ? 'between them' : 'next to them') + ' at ' + C + ' would make three in a row, so ' + C + ' is a ' + SYM[3 - w] + '.' };
+    }
+  }
+  // Try to show, using only the rules inside one line, why cell x cannot hold value w.
+  function lineProof(G, s, l, x, w) {
+    const L = G.lines[l], cells = L.cells, n = G.n, half = G.half;
+    const t = s.slice(); t[x] = w; const steps = [];
+    const signAt = j => (L.eq >> j & 1) ? 1 : (L.ne >> j & 1) ? 2 : 0;
+    for (let guard = 0; guard < 8; guard++) {
+      let su = 0, mo = 0; for (const c of cells) { if (t[c] === 1) su++; else if (t[c] === 2) mo++; }
+      if (su > half) return { steps, end: lineLabel(G, l) + ' would have ' + su + ' suns (only ' + half + ' allowed)' };
+      if (mo > half) return { steps, end: lineLabel(G, l) + ' would have ' + mo + ' moons (only ' + half + ' allowed)' };
+      for (let j = 0; j + 2 < n; j++) { const a = t[cells[j]]; if (a && a === t[cells[j + 1]] && a === t[cells[j + 2]]) return { steps, end: lineRange(G, [cells[j], cells[j + 2]]) + ' would be three ' + SYMS[a] + ' in a row' }; }
+      for (let j = 0; j + 1 < n; j++) { const sg = signAt(j), a = t[cells[j]], b = t[cells[j + 1]]; if (sg && a && b && ((sg === 1) !== (a === b))) return { steps, end: cellLabel(G, cells[j]) + ' and ' + cellLabel(G, cells[j + 1]) + ' would break the ' + (sg === 1 ? '=' : '×') + ' sign' }; }
+      let moved = false;
+      for (let j = 0; j + 1 < n && !moved; j++) {
+        const sg = signAt(j); if (!sg) continue;
+        for (const [p, q] of [[j, j + 1], [j + 1, j]]) {
+          const a = t[cells[p]]; if (a && !t[cells[q]]) { const v = sg === 1 ? a : 3 - a; t[cells[q]] = v; steps.push(cellLabel(G, cells[q]) + ' would be a ' + SYM[v] + ' (' + (sg === 1 ? '=' : '×') + ' sign)'); moved = true; break; }
+        }
+      }
+      if (moved) continue;
+      for (const full of [1, 2]) {
+        if (moved || (full === 1 ? su : mo) !== half) continue;
+        const open = cells.filter(c => !t[c]); if (!open.length) continue;
+        open.forEach(c => t[c] = 3 - full);
+        steps.push(listCells(G, open) + (open.length === 1 ? ' would be a ' + SYM[3 - full] : open.length === 2 ? ' would both be ' + SYMS[3 - full] : ' would all be ' + SYMS[3 - full]) + ' (' + lineLabel(G, l) + ' would then have its ' + half + ' ' + SYMS[full] + ')'); moved = true;
+      }
+      if (moved) continue;
+      for (let j = 0; j + 2 < n && !moved; j++) {
+        const a = cells[j], b = cells[j + 1], c = cells[j + 2], va = t[a], vb = t[b], vc = t[c];
+        let cell = -1, w2 = 0;
+        if (va && va === vb && !vc) { cell = c; w2 = va; } else if (vb && vb === vc && !va) { cell = a; w2 = vb; } else if (va && va === vc && !vb) { cell = b; w2 = va; }
+        if (cell >= 0) { t[cell] = 3 - w2; steps.push(cellLabel(G, cell) + ' would be a ' + SYM[3 - w2] + ' (to avoid three ' + SYMS[w2] + ')'); moved = true; }
+      }
+      if (!moved) return null;
+    }
+    return null;
+  }
+  function stepLine(G, s, minU, maxU, tier) {
+    let best = null;
+    for (let l = 0; l < G.lines.length; l++) {
+      const L = G.lines[l]; const { S, M } = lineMasks(G, s, L);
+      const u = G.n - popcount(S) - popcount(M);
+      if (u < minU || u > maxU || u === 0) continue;
+      if (best && u >= best.u) continue;
+      const comp = compatible(G, L, S, M);
+      if (!comp.length) continue;
+      let and = (1 << G.n) - 1, or = 0; for (const p of comp) { and &= p; or |= p; }
+      const set = [];
+      for (let j = 0; j < G.n; j++) { const c = L.cells[j]; if (s[c]) continue; if (and >> j & 1) set.push([c, 1]); else if (!(or >> j & 1)) set.push([c, 2]); }
+      if (!set.length) continue;
+      const needS = G.half - popcount(S), needM = G.half - popcount(M);
+      // explain the first forced cell that has a short proof inside the line, if any
+      let focus = set[0], proof = null;
+      for (const cand of set) { const pr = lineProof(G, s, l, cand[0], 3 - cand[1]); if (pr && (!proof || pr.steps.length < proof.steps.length)) { proof = pr; focus = cand; } }
+      const F = cellLabel(G, focus[0]), v = focus[1], LN = lineLabel(G, l);
+      let text, options = null;
+      if (proof) {
+        text = F + ' must be a ' + SYM[v] + '. Suppose it were a ' + SYM[3 - v] + (proof.steps.length ? ': then ' + proof.steps.join(', then ') + ', and ' : ': then ') + proof.end + '.';
+      } else {
+        options = comp.map(p => { const a = []; for (let j = 0; j < G.n; j++) a.push(p >> j & 1 ? 1 : 2); return a; });
+        text = LN + ' has ' + u + ' open cells, which need ' + needS + ' sun' + (needS === 1 ? '' : 's') + ' and ' + needM + ' moon' + (needM === 1 ? '' : 's') + '. ' +
+          (comp.length === 1 ? 'Only one arrangement follows the rules (shown below), and it has ' : 'Only ' + comp.length + ' arrangements follow the rules (shown below). In ' + (comp.length === 2 ? 'both' : 'all of them') + ', ') + (comp.length === 1 ? 'a ' + SYM[v] + ' at ' + F : F + ' is a ' + SYM[v]) + '.';
+      }
+      best = { u, tier, kind: 'line', set, focus, cells: [focus[0]], lines: [l], text, options, lineCells: L.cells.slice(), focusPos: L.cells.indexOf(focus[0]),
+        short: listCells(G, set.map(x => x[0])) + (set.length > 1 ? ' settled' : ' is a ' + SYM[set[0][1]]) + ' (only possible arrangement' + (comp.length > 1 ? 's' : '') + ' of ' + LN + ')' };
+    }
+    return best;
+  }
+  function applyStep(s, st) { for (const [c, v] of st.set) s[c] = v; }
+  function describeSet(G, set) { return set.map(([c, v]) => cellLabel(G, c) + ' ' + SYM[v]).slice(0, 6).join(', ') + (set.length > 6 ? ', …' : ''); }
+
+  function propagate(G, s, maxTier, budget, wantChain) {
+    let steps = 0; const chain = [];
+    for (;;) {
+      const ct = findContradiction(G, s);
+      if (ct) return { contra: true, steps, chain, reason: ct };
+      const st = findStep(G, s, { maxTier, noTrials: true });
+      if (!st) return { contra: false, steps, chain };
+      applyStep(s, st); if (st.tier > 0) steps++;
+      if (wantChain) chain.push(st.short || describeSet(G, st.set));
+      if (steps > budget) return { contra: false, steps, chain, aborted: true };
+    }
+  }
+  function stepTrial(G, s, innerTier, tier) {
+    let best = null;
+    for (let x = 0; x < G.N; x++) if (!s[x]) {
+      for (const v of [1, 2]) {
+        const t = s.slice(); t[x] = v;
+        const res = propagate(G, t, innerTier, best ? best.len - 1 : 80, false);
+        if (res.contra && (!best || res.steps < best.len)) best = { x, v, len: res.steps };
+      }
+      if (best && best.len <= 1) break;
+    }
+    if (!best) return null;
+    const t = s.slice(); t[best.x] = best.v;
+    const res = propagate(G, t, innerTier, 300, true);
+    const reason = res.reason ? res.reason.text.replace(/\.$/, '') : 'a rule would break';
+    const X = cellLabel(G, best.x);
+    return { tier, kind: 'trial', set: [[best.x, 3 - best.v]], cells: [best.x], lines: res.reason && res.reason.line !== undefined ? [res.reason.line] : [],
+      chainLen: best.len, chain: res.chain,
+      short: X + ' is a ' + SYM[3 - best.v] + ' (a ' + SYM[best.v] + ' there leads to a contradiction)',
+      text: 'Suppose ' + X + ' were a ' + SYM[best.v] + '. Following only what is forced (listed below), ' + reason + '. That is impossible, so ' + X + ' must be a ' + SYM[3 - best.v] + '.' };
+  }
+  function findStep(G, s, opts) {
+    opts = opts || {}; const maxTier = opts.maxTier === undefined ? 6 : opts.maxTier;
+    let st = stepSign(G, s); if (st) return st;
+    st = stepCount(G, s); if (st) return st;
+    if (maxTier >= 1) { st = stepTriple(G, s); if (st) return st; }
+    if (maxTier >= 2) { st = stepLine(G, s, 1, 4, 2); if (st) return st; }
+    if (maxTier >= 3) { st = stepLine(G, s, 5, 7, 3); if (st) return st; }
+    if (maxTier >= 4) { st = stepLine(G, s, 8, 99, 4); if (st) return st; }
+    if (opts.noTrials) return null;
+    if (maxTier >= 5) { st = stepTrial(G, s, 2, 5); if (st) return st; }
+    if (maxTier >= 6) { st = stepTrial(G, s, 4, 6); if (st) return st; }
+    return null;
+  }
+  function grade(P, maxTier) {
+    const G = makeGeom(P); const s = Int8Array.from(P.givens);
+    const counts = [0, 0, 0, 0, 0, 0, 0]; let trialLen = 0, maxChain = 0;
+    for (;;) {
+      if (findContradiction(G, s)) return { solved: false, bad: true };
+      const st = findStep(G, s, { maxTier: maxTier === undefined ? 6 : maxTier });
+      if (!st) break;
+      applyStep(s, st); counts[st.tier]++;
+      if (st.kind === 'trial') { trialLen += st.chainLen; maxChain = Math.max(maxChain, st.chainLen); }
+    }
+    let solved = true; for (let i = 0; i < G.N; i++) if (!s[i]) solved = false;
+    let maxT = 0; for (let t = 0; t < 7; t++) if (counts[t]) maxT = t;
+    const score = counts[1] * 0.3 + counts[2] * 1 + counts[3] * 3 + counts[4] * 6 + counts[5] * 12 + counts[6] * 25 + trialLen * 0.5;
+    return { solved, counts, maxTier: maxT, score: Math.round(score * 10) / 10, maxChain, final: Array.from(s) };
+  }
+
+  // ---------- generator ----------
+  function randomSolution(n, rng) {
+    const pats = patterns(n), half = n / 2, full = (1 << n) - 1, colS = new Int8Array(n), rows = [];
+    let nodes = 0;
+    function rec(r, p1, p2) {
+      if (++nodes > 200000) return false;
+      if (r === n) return true;
+      for (const p of shuffle(pats.slice(), rng)) {
+        if (r > 1 && ((p & p1 & p2) || (~p & ~p1 & ~p2 & full))) continue;
+        let ok = true;
+        for (let c = 0; c < n; c++) if (p >> c & 1) { if (colS[c] >= half) { ok = false; break; } } else if (r - colS[c] >= half) { ok = false; break; }
+        if (!ok) continue;
+        for (let c = 0; c < n; c++) if (p >> c & 1) colS[c]++;
+        rows[r] = p; if (rec(r + 1, p, p1)) return true;
+        for (let c = 0; c < n; c++) if (p >> c & 1) colS[c]--;
+      }
+      return false;
+    }
+    for (let a = 0; a < 20; a++) { nodes = 0; colS.fill(0); if (rec(0, 0, 0)) break; }
+    const sol = new Int8Array(n * n);
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) sol[r * n + c] = (rows[r] >> c & 1) ? 1 : 2;
+    return sol;
+  }
+  // clue ids: 0..N-1 = given cell, N.. = h edges, then v edges
+  function makePuzzle(n, rng, opts) {
+    opts = opts || {}; const pEdge = opts.pEdge === undefined ? 0.35 : opts.pEdge;
+    const sol = randomSolution(n, rng), N = n * n, H = n * (n - 1);
+    const trueH = new Int8Array(H), trueV = new Int8Array(H);
+    for (let r = 0; r < n; r++) for (let c = 0; c < n - 1; c++) trueH[r * (n - 1) + c] = sol[r * n + c] === sol[r * n + c + 1] ? 1 : 2;
+    for (let r = 0; r < n - 1; r++) for (let c = 0; c < n; c++) trueV[r * n + c] = sol[r * n + c] === sol[(r + 1) * n + c] ? 1 : 2;
+    const P = { n, givens: Int8Array.from(sol), h: new Int8Array(H), v: new Int8Array(H) };
+    const clues = [];
+    for (let i = 0; i < N; i++) clues.push(i);
+    for (let i = 0; i < H; i++) if (rng() < pEdge) { P.h[i] = trueH[i]; clues.push(N + i); }
+    for (let i = 0; i < H; i++) if (rng() < pEdge) { P.v[i] = trueV[i]; clues.push(N + H + i); }
+    shuffle(clues, rng);
+    for (const k of clues) {
+      const undo = setClue(P, k, 0, N, H);
+      if (countSolutions(P, 2, opts.budget || 150000).count !== 1) setClue(P, k, undo, N, H);
+    }
+    return { P, sol, trueH, trueV };
+  }
+  function setClue(P, k, val, N, H) {
+    let old;
+    if (k < N) { old = P.givens[k]; P.givens[k] = val; }
+    else if (k < N + H) { old = P.h[k - N]; P.h[k - N] = val; }
+    else { old = P.v[k - N - H]; P.v[k - N - H] = val; }
+    return old;
+  }
+  // Add true clues until the grade satisfies `ok` (used to make easier puzzles).
+  function ease(M, rng, ok, maxAdd) {
+    const { P, sol, trueH, trueV } = M, n = P.n, N = n * n, H = n * (n - 1);
+    let g = grade(P);
+    for (let a = 0; a < (maxAdd || 20) && !ok(g); a++) {
+      const free = [];
+      for (let i = 0; i < N; i++) if (!P.givens[i]) free.push(i);
+      for (let i = 0; i < H; i++) { if (!P.h[i]) free.push(N + i); if (!P.v[i]) free.push(N + H + i); }
+      if (!free.length) break;
+      const k = free[Math.floor(rng() * free.length)];
+      setClue(P, k, k < N ? sol[k] : k < N + H ? trueH[k - N] : trueV[k - N - H], N, H);
+      g = grade(P);
+    }
+    return g;
+  }
+
+  // ---------- encoding ----------
+  function encode(P) { // 2 bits per cell given, then 2 bits per h edge, then v edge
+    const vals = Array.from(P.givens).concat(Array.from(P.h), Array.from(P.v));
+    const bytes = [];
+    for (let i = 0; i < vals.length; i += 4) bytes.push((vals[i] << 6) | ((vals[i + 1] || 0) << 4) | ((vals[i + 2] || 0) << 2) | (vals[i + 3] || 0));
+    return bytes;
+  }
+  function decode(n, bytes) {
+    const N = n * n, H = n * (n - 1), total = N + 2 * H, vals = [];
+    for (const b of bytes) vals.push(b >> 6 & 3, b >> 4 & 3, b >> 2 & 3, b & 3);
+    if (vals.length < total) return null;
+    for (let i = 0; i < total; i++) if (vals[i] > 2) return null;
+    return { n, givens: Int8Array.from(vals.slice(0, N)), h: Int8Array.from(vals.slice(N, N + H)), v: Int8Array.from(vals.slice(N + H, total)) };
+  }
+
+  const API = { mulberry32, patterns, makeGeom, countSolutions, findStep, findContradiction, applyStep, grade, makePuzzle, ease, encode, decode, cellLabel, lineLabel, TIER_NAMES };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.TGE = API;
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+const INVENTORY = {"easy":[{"n":6,"g":".........SM..M....MS..S..M..MS......","h":"...=..=....x............x....x","v":"....=..........=.=..x.x...==.x","sol":"MSSMMSSMMSMSSMSMSMMSSMSMSMMSMSMSMSSM","score":1.2},{"n":6,"g":"M...S...S.M............M.M........S.","h":".x.x........x.........=.......","v":"=........=..=...x........==...","sol":"MSMMSSMMSSMSSSMSMMSSMMSMMMSSMSSMSMSM","score":1.2},{"n":6,"g":"..M.M.........M.S.......S.......M.MM","h":".........=x......x....x.......","v":"...xx...x....x.......=..=.....","sol":"MSMSMSMMSMSSSMMSSMMSSMMSSMSMSMSSMSMM","score":1.5},{"n":6,"g":"M..M..M..S.M...M...M.M.............M","h":"....x.......x.................","v":"...........=..................","sol":"MSSMMSMSMSSMSMSMSMSMSMMSMSMSMSSMMSSM","score":1.5},{"n":6,"g":"....SS.SS........S.....M..SM.......M","h":"=.................x........x..","v":".....x..............x.........","sol":"MMSMSSMSSMSMSMMSMSSSMSMMMMSMSSSSMSMM","score":1.8},{"n":6,"g":".....M.M.....SM........M.M.S........","h":".=..........x.......x..x......","v":".........x.......=.=..........","sol":"MSSMSMSMSMMSMSMSSMSMSMSMSMMSMSMSMSMS","score":1.8},{"n":6,"g":"........M....SS..S..........S.......","h":"x...x.x........x=.............","v":".....x...=............===.....","sol":"SMMSMSSSMMSMMSSMMSSMMSSMMSSMSMMMSSMS","score":1.8},{"n":6,"g":"M.MS.S....M....M..M......M....M.....","h":"....x=........................","v":"........x......x............=.","sol":"MSMSMSSSMSMMSMSMSMMSMSMSSMSMSMMMSMSS","score":1.8},{"n":6,"g":".....M....M...M..S........S....S..S.","h":".....x........................","v":"...........x.x...x..x....=....","sol":"SMSSMMSMSSMMMSMMSSSMMSSMMSSMMSMSMMSS","score":2.1},{"n":6,"g":"..............S.....S......S.S.....S","h":"....=..............=.......x..","v":".................x............","sol":"SSMSMMSSMMSMMMSMSSSMSSMMMSMSMSMMSMSS","score":2.1},{"n":6,"g":"..M....M.S..M..M.M........S...M.....","h":"..............x.x......x......","v":".......x=......==.......x.....","sol":"SMMSMSSMSSMMMSSMSMMSMMSSSMSSMMMSMMSS","score":2.1},{"n":6,"g":"..SS..M.M........S..S.....M...S.....","h":"........xx.................=..","v":".x....=.x...................x.","sol":"SMSSMMMSMSMSMMSMSSSMSMSMMSMSMSSSMMSM","score":2.4},{"n":6,"g":".M.......S..S.....S.......M...S.....","h":".....=...........=.........x..","v":"..............................","sol":"MMSMSSMMSSMSSSMMSMSMSSMMMSMMSSSSMSMM","score":2.4},{"n":6,"g":".......M..S..MS.M..S......M......MS.","h":"......x.....x.....x=...=......","v":"......................x.......","sol":"SSMSMMMMSMSSSMSMMSSSMSMMMSMSSMMMSMSS","score":2.4},{"n":6,"g":".M...M..M.......S..S...............M","h":"......=.......................","v":"..=...........=...............","sol":"SMMSSMSMMSMSMSSMSMMSSMMSSMMSMSMSSMSM","score":2.7},{"n":6,"g":"...M..M.M.S............S........S...","h":".......=.....=..............x.","v":"........=....=.=..............","sol":"MSSMMSMSMMSSSMMSSMMMSSMSSSMMSMSMSSMM","score":2.7},{"n":6,"g":"...M........S..S.........MM...SS....","h":".x.....=......................","v":"...........................x..","sol":"MMSMSSMMSSMSSSMSMMMSSMSMSMMSMSSSMMSM","score":3},{"n":6,"g":"M..S..S.S.M..........S....M.........","h":".........x....................","v":".................=........=...","sol":"MMSSMSSMSMMSMSMSSMSMSSMMMSMMSSSSMMSM","score":3},{"n":6,"g":"......MSS..M........S.....S.M......S","h":"...........x................x.","v":".x.................x=.........","sol":"SMMSSMMSSMSMMSMSMSSMSMSMMSSMMSSMMSMS","score":3.6},{"n":6,"g":"............SS.M........MM.S..M...M.","h":".........x.........x.....x....","v":"..=................x..........","sol":"SMSMSMMMSSMSSSMMSMSSMMSMMMSSMSMSMSMS","score":3.6},{"n":6,"g":"....S....M.....S..........M....S....","h":".x............................","v":"....=...=.................x...","sol":"MSMSSMSMSMSMMMSSMSSSMMSMSMMSMSMSSMMS","score":6},{"n":6,"g":"....SS..S....S....MS..S...M...M.....","h":"..............................","v":"..............................","sol":"MMSMSSSMSMMSSSMSMMMSSMSMSMMSMSMSMSSM","score":5},{"n":6,"g":".M....S..S.......MM.............S..M","h":".....x..............x.=.......","v":"..............................","sol":"SMMSMSSMMSMSMSSMSMMSMMSSSMSSMMMSSMSM","score":4.4},{"n":6,"g":"..M....SM....................MS..S..","h":"...........=..................","v":"..............................","sol":"SMMSMSMSMMSSMSSMSMSMMSMSMSSMSMSMSSMM","score":7},{"n":6,"g":"........M....S...............S......","h":"....=..............==.........","v":"..=..x.......................=","sol":"SSMSMMSMMSMSMSSMSMSSMSMMMMSMSSMMSMSS","score":5.4},{"n":6,"g":"...M.......M.S.M......S...S..SM....S","h":".......x...................x..","v":"...x.=...............x...=....","sol":"SMSMSMSMMSSMMSSMMSSMMSSMMSSMMSMSMSMS","score":2.9},{"n":6,"g":".S..M.S..M.S...................S....","h":".....x........=....x.......=..","v":"......x...x...................","sol":"SSMSMMSMSMMSMMSMSSMSMSSMSMSSMMMSMMSS","score":5},{"n":6,"g":".........S..M..........S........M...","h":"........x.............=.....=.","v":".........=..x...........=.....","sol":"SMSMMSSMSSMMMSMSSMSMSMMSMSMMSSMSMSSM","score":4.8},{"n":6,"g":"........M..SM.........M.............","h":"=......=................x.....","v":"..............x............=..","sol":"SSMSMMMSMMSSMMSSMSSSMSMMSMSMSMMMSMSS","score":5.7},{"n":6,"g":".............M...SM..M.......M...M..","h":".=.............x..............","v":".=..=...=................=....","sol":"MSSMSMMSMSSMSMMSMSMSSMMSSMMSSMSMSMMS","score":4.1},{"n":6,"g":"...SM...S.M....S.....M.....S.S.....S","h":"........=......x....=x.......=","v":".x...x........................","sol":"SSMSMMSMSMMSMSMSSMSMSMSMMMSSMSMSMMSS","score":4.8},{"n":6,"g":"....S.M......S..S.......S...S......M","h":"..x..................xx.......","v":"..............x...............","sol":"MMSMSSMSMSMSSSMMSMMMSSMSSMSMSMSSMSMM","score":5.2},{"n":6,"g":"...S.......M....S.....SM........S...","h":"=.........x....=..............","v":"..............................","sol":"SSMSMMSMSSMMMSMMSSSSMMSMMMSSMSMMSMSS","score":7.4},{"n":6,"g":"........M.....M......S..M...........","h":"...x........=............x.x..","v":"........................=...=.","sol":"SMSSMMSMMSMSMSMMSSSMSSMMMSMMSSMSSMSM","score":5.1},{"n":6,"g":".......SM..........S.......M....MM..","h":"..............................","v":"...........=..........=.......","sol":"MMSSMSMSMSSMSMSMSMMSMSMSSMSMMSSSMMSM","score":4.7},{"n":6,"g":"..........M......MS...........S..MS.","h":"......=............x.....x....","v":"=..x......x...=..x.....x......","sol":"MSMSMSMSSMMSSMMSSMSMMSMSMSSMSMSMSMSM","score":5.9},{"n":6,"g":"...S...M....S....S...SM...M....M..S.","h":"...................x..........","v":"..............................","sol":"MSMSMSSMSMSMSMSMMSMSMSMSMSMSSMSMSMSM","score":4.4},{"n":6,"g":"......M..S.......M..M.......S..M...M","h":"x..x..................x.......","v":"......=.......................","sol":"SMMSMSMSMSMSMSSMSMSMMSMSMSSMSMSMSMSM","score":5.8},{"n":6,"g":"..M...S...S...S.S.M.......M......S..","h":"..............................","v":".............x....=...........","sol":"MSMSMSSMSMSMSMSMSMMSMSMSMSMMSSSMSSMM","score":4.7},{"n":6,"g":"...M....S.MS..S......S.......SM.....","h":".........................=....","v":".......=..............x.......","sol":"SSMMSMMMSSMSSMSMSMSSMSMMMSMMSSMMSSMS","score":5.5},{"n":6,"g":"....M..M...S...........MS.....S.....","h":"........=.....................","v":"...=..........=...............","sol":"MSSMMSSMSMMSMSMSSMMSMSSMSMSMMSSMMSSM","score":4.5},{"n":6,"g":".........M..S....M.......M..S......M","h":".=.=.......=.....x...=....=...","v":".=............x........x......","sol":"MSSMMSMSSMMSSMMSSMMSSMMSSMMSSMSMMSSM","score":3.2},{"n":6,"g":"..............S.M..........M..S.SS..","h":".................xx.....x.....","v":"...................=....x.....","sol":"MSMMSSSMMSSMSMSMMSMSMSMSMSSMSMSMSSMM","score":3.8},{"n":6,"g":".M.M.....M....S..S.M....M...........","h":"...x.....................x....","v":"...........................==.","sol":"SMSMSMSSMMSMMMSSMSSMSMSMMSMSMSMSMSMS","score":3.8},{"n":6,"g":"S...M....M.........................S","h":".................=....x.......","v":"...=.......................x..","sol":"SMSMMSSSMMSMMSMSSMMMSSMSSMSMSMMSMSMS","score":5.3},{"n":6,"g":"...M.SM...M..M....S....M...S........","h":"......=..........x........=...","v":"..............................","sol":"MSSMMSMSSMMSSMMSSMSMSMSMMSMSMSSMMSSM","score":5},{"n":6,"g":"..S...........M..M...............M..","h":".................x.=.........=","v":"...=.......................=..","sol":"SMSSMMMMSSMSSSMMSMSSMSMMMMSMSSMSMMSS","score":5.3},{"n":6,"g":"...........S.S......M.M.S.......S..S","h":"....=.........................","v":"..=...........................","sol":"SSMSMMSMMSMSMSSMSMMSMSMSSMSMSMMMSMSS","score":4.1},{"n":6,"g":"....M..............M..M......SSS....","h":".............................=","v":"........x........=........x...","sol":"MSMSMSMMSMSSSSMMSMSMSSMMMMSMSSSSMSMM","score":3.5},{"n":6,"g":"..M.M.SS.......M.S.M.......S.SS.....","h":"..............................","v":"..........x...................","sol":"MSMSMSSSMSMMMMSMSSSMSMSMMSMSMSSMSMSM","score":5.1}],"medium":[{"n":6,"g":"....S..M................S........M..","h":"=.............xx.....xx.......","v":".................=............","sol":"SSMMSMSMSSMMMMSSMSMSMMSSSSMSMMMMSMSS","score":10.2},{"n":6,"g":"........M...............M...M.M.....","h":"...=..........................","v":"...=.........x=........x.....x","sol":"SMMSSMSMMSMSMSSMMSSMSMSMMSMSMSMSSMSM","score":10.2},{"n":6,"g":"..............MS.............S....S.","h":"...=.x.....................=..","v":".......x............x.........","sol":"MSSMMSSMSSMMMSMSSMMMSMSSSMMSMSSSMMSM","score":10.2},{"n":6,"g":"......M.....M........M.......S......","h":".............=..............=.","v":"...=...............x.........=","sol":"SMMSSMMSMSSMMSSMMSSMSMSMMSMSMSSMSMMS","score":10.4},{"n":6,"g":"S................................S..","h":"x.........=.....x........x..x.","v":"..=.=..........x.....x...x...x","sol":"SMSMSMMMSMSSSSMSMMMSMMSSSMSSMMMSMSMS","score":10.5},{"n":6,"g":".....S.S............M...M...........","h":".x.......x....................","v":"...............=.x.......=.=.=","sol":"MMSSMSMSSMMSSMMSSMSMMSMSMSSMSMSSMMSM","score":10.5},{"n":6,"g":"...................S..M...S........M","h":".........x..........x.......x.","v":".=.x.............x.......=..=.","sol":"MSMSMSMSSMMSSMMSSMMSMSMSSMSMSMSMSMSM","score":10.6},{"n":6,"g":"..S.................M......M.S.S....","h":"x...x....=x...................","v":".x...................=........","sol":"MSSMMSSMSSMMSMMSSMMSMMSSSMSMMSMSMSSM","score":10.6},{"n":6,"g":".M....M..S................SM........","h":".....=........=...............","v":"............=................x","sol":"MMSMSSMMSSMSSSMSMMSSMMSMMMSMSSSSMSMM","score":10.7},{"n":6,"g":"..S........M..S.S...S...............","h":"...........................x..","v":"....=..............=..........","sol":"SMSMMSSSMSMMMSSMSMMMSMSSSMMSMSMSMSSM","score":10.8},{"n":6,"g":".......................S.........M..","h":".........=x.x......=.......=..","v":".x...........=....x...........","sol":"MMSSMSSSMSMMSMSMSMMMSMSSSSMSMMMSMMSS","score":10.8},{"n":6,"g":".....S............M...M......M...S..","h":".=.....x...............=......","v":"..x...........x.........x.....","sol":"MSSMMSSMMSSMSSMMSMMSSMMSSMMSSMMMSSMS","score":10.8},{"n":6,"g":"M.SS............S...........M.......","h":".....=...........=............","v":".........x...=...............=","sol":"MMSSMSMMSSMSSSMMSMMSMMSSSMSSMMSSMMSM","score":10.8},{"n":6,"g":".M.........S............M.........M.","h":"....=.....xx..................","v":"........=.......=.............","sol":"MMSMSSSMMSMSMSMSSMSMSMSMMSSMMSSSMSMM","score":10.8},{"n":6,"g":"...........SS........M.S......S.....","h":"......=....x................x.","v":".......................x....=.","sol":"MSMSMSSMMSMSSMSMSMMSSMMSMSMSSMSMSMSM","score":10.8},{"n":6,"g":".....SM......................M......","h":"..=...=.=.............x..x....","v":".........=....................","sol":"MMSSMSMSSMMSSSMMSMSMMSMSMSSMSMSMMSSM","score":11},{"n":6,"g":".M......M.........M.....M...........","h":"..x..=........................","v":"...........................x=.","sol":"MMSMSSSSMSMMSMMSSMMMSMSSMSSMMSSSMSMM","score":11.1},{"n":6,"g":"..........S.M..............M.SM.....","h":"......=......................=","v":"...x..........................","sol":"SMSSMMMSSMSMMSMSMSSMMSSMSMSMMSMSMMSS","score":11.1},{"n":6,"g":".............M...M......M...........","h":".=...=........................","v":".............................=","sol":"MSSMSMMMSSMSSMMSSMSSMMSMMSSMMSSMMSMS","score":11.3},{"n":6,"g":"..............M.S......M.........M..","h":".....x.x.....................=","v":"..........=..........x..x.....","sol":"SMSSMMMSMSSMMSMMSSSMSSMMSMSMMSMSMMSS","score":11.3},{"n":6,"g":".....M.....SM..S..M...........S.....","h":"......................=.......","v":"...=......................=...","sol":"MSSMSMSMSMMSMSMSSMMMSSMSSSMMSMSMMSMS","score":11.5},{"n":6,"g":".M.................S......S.........","h":".....x...x................=...","v":".....................=....=..=","sol":"SMMSMSSMSMSMMSMMSSMSMSMSSMSSMMMSSMSM","score":11.6},{"n":6,"g":"S......M..MM...............S....S...","h":"....................=.........","v":".................x...........x","sol":"SMMSMSSMSSMMMSMMSSSSMMSMMMSSMSMSSMSM","score":11.6},{"n":6,"g":".....MM.............................","h":"........=.=..................x","v":".......x......==..............","sol":"SSMSMMMSMSSMMMSMSSSMSMMSMSMSSMSMSMMS","score":11.6},{"n":6,"g":"...S.......SM.......................","h":".....=.....=..................","v":".............x...=x...........","sol":"SMMSMSMMSSMSMSSMSMSMMSSMMSSMMSSSMMSM","score":11.7},{"n":6,"g":"........S.................M.....MM..","h":".....=.........x........=.....","v":"=...............x.............","sol":"MMSSMSMMSSMSSSMMSMSMSSMMMSMMSSSSMMSM","score":11.7},{"n":6,"g":"..........S............S......M...M.","h":"..........x.........=.........","v":".......=...=...............=..","sol":"MSMMSSSMSMSMSMSSMMMSMMSSSSMSMMMMSSMS","score":11.8},{"n":6,"g":"M...............MM.......MS.........","h":"...=.x..............x.........","v":"...x......x..................=","sol":"MSMSSMMSMMSSSMSSMMMSMSSMSMSMMSSMSMMS","score":11.8},{"n":6,"g":"M..........M......................M.","h":".=....=.x............=........","v":"........................=....=","sol":"MSSMSMMSSMSMSMMSMSMSSMSMSMMSMSSMMSMS","score":11.8},{"n":6,"g":".........M.S......M......S..........","h":"........................=.....","v":"......=..................=....","sol":"MMSMSSSMSMMSSSMSMMMMSMSSSSMSMMMSMSSM","score":11.8},{"n":6,"g":"......M............S.............S..","h":".x....................x.......","v":"=.x.==...........x.......==...","sol":"MSMMSSMMSMSSSSMSMMMSMSMSSMSMSMSMSSMM","score":11.9},{"n":6,"g":"........SS..........................","h":"...........=.......x..........","v":"....=...........=.......=.....","sol":"MSSMMSMMSSMSSMMSSMMSSMSMSMMSMSSSMMSM","score":11.9},{"n":6,"g":"S.M...............S..M......M......M","h":"..........................x...","v":"...=....x..x....=.............","sol":"SMMSMSMSMSMSMSSMSMSMSMSMMSMSMSSMSMSM","score":11.9},{"n":6,"g":"...............M....S.M...S.........","h":"=........=.........x..........","v":".................x=........=..","sol":"MMSSMSSSMSMMSSMMSMMMSSMSMMSMSSSSMMSM","score":12.1},{"n":6,"g":"....M..................S............","h":"..=.....x..............=......","v":".=.......................x.=..","sol":"MMSSMSSMSMSMMSMSSMMSMSMSSMSMMSSSMMSM","score":12.2},{"n":6,"g":"..........M..........M.............M","h":"....=..=.............x.....x..","v":"......=.......x.x.........=...","sol":"MMSMSSSMSSMMSSMSMMMMSMSSMSMMSSSSMSMM","score":12.2},{"n":6,"g":".....S...S.........S...M.......S....","h":"............x.................","v":".=............=..x..........=.","sol":"MMSMSSSMMSSMMSSMMSMSSMSMSMMSMSSSMSMM","score":12.4},{"n":6,"g":".....S.MM.M.................S.......","h":".=.............=..............","v":"..........................==..","sol":"SMMSMSSMMSMSMSSMSMSSMSMMMMSMSSMSSMSM","score":12.5},{"n":6,"g":"...................M..S...M..SS.....","h":"..=..........=................","v":"==x...........................","sol":"MSMMSSMSSMMSSMMSSMSMSMSMMSMSMSSMSSMM","score":12.5},{"n":6,"g":".......S.........S....M............S","h":".=...........=..=......=....x.","v":"..............................","sol":"MSSMSMMSMSSMSMSMMSMSSMMSSMMSSMSMMSMS","score":12.7},{"n":6,"g":".....M.....M.........S....M.........","h":".=.......x.....=..............","v":"..=..........xx...............","sol":"MSSMSMSMSMSMMSMSMSMMSSMSSSMMSMSMMSMS","score":12.8},{"n":6,"g":".............M.......SS..S..........","h":"....x...x.....=...............","v":".x..........=.............x..=","sol":"SMSMSMMSMMSSSMSSMMSMMSSMMSSMMSMSMSMS","score":13.5},{"n":6,"g":".........M...............S.........S","h":"....................x.........","v":".....=....=...=.........x.....","sol":"SMSSMMMSSMSMMSMMSSSMMSMSMSSMSMSMMSMS","score":13.5},{"n":6,"g":"..M............................S....","h":"......=......=.=......x.......","v":".=..x.......................=.","sol":"SMMSMSSMMSSMMSSMMSSSMSMMMMSMSSMSSMSM","score":14.4},{"n":6,"g":".............M...........MM.........","h":".......=.....................=","v":"......=..................=....","sol":"MSMSMSSSMMSMSMSSMMMSSMMSSMMSSMMMSMSS","score":14.4},{"n":6,"g":".....M............M.......MM........","h":".................x........=...","v":"=.............=...............","sol":"MSSMSMMSMSMSSMSSMMMMSMSSSSMMSMSMMSMS","score":15.1},{"n":6,"g":"..............S........M.......S....","h":"xx.........................x..","v":"....=........=..=.=...........","sol":"SMSMSMMSMMSSMMSSMSSMSSMMSSMMSMMSMSMS","score":15.2},{"n":6,"g":"............M..M.....S..........S...","h":"............................=.","v":".=............=...=...........","sol":"SMMSSMMMSSMSMSMMSSSSMSMMSMSMSMMSSMMS","score":15.5},{"n":6,"g":".MS..................S..............","h":"..........x.........=.......=.","v":"...x.....x....=.........=.....","sol":"SMSMMSSMSSMMMSMMSSSSMSMMMMSMSSMSMSSM","score":15.9},{"n":6,"g":".............M.M.........M...S......","h":"..=......=..................=.","v":".........x........=...........","sol":"MSMMSSSMSSMMMMSMSSSSMSMMSMSMMSMSMSSM","score":16.6}],"hard":[{"n":6,"g":"...M..M.........M...........SM......","h":"...............=..............","v":"=............x.x.........=....","sol":"MMSMSSMMSSMSSSMSMMMMSMSSSSMMSMSSMSMM","score":15.3},{"n":6,"g":".....M...S...S..M..SM.....M.......S.","h":"..............................","v":"=............................x","sol":"SMSMSMSMMSMSMSSMMSMSMSSMSMMSMSMSSMSM","score":16.8},{"n":6,"g":".......M..........SS..............S.","h":"...=.........x............x...","v":"...=.x.....................x..","sol":"SMSMMSSMSMSMMSMSMSSSMSMMMMSMSSMSMSSM","score":17.9},{"n":6,"g":".......M..S........M...............M","h":"=.x...................x.......","v":"...=...................=......","sol":"MMSMSSSMSMSMSSMSMMMMSMSSMSMSMSSSMSMM","score":17.9},{"n":6,"g":"...............S......M...M....M....","h":".x...........xx...............","v":".....x...=.........x..........","sol":"SMSMMSMSMSSMMSMSMSSMSMMSMSMSSMSMSMSM","score":17.9},{"n":6,"g":"S....M..M.S..........M.M.........S..","h":"....x...........x.............","v":".............=.............x..","sol":"SMSMSMMSMSSMSMMSMSSMSMSMMSSMMSMSMSMS","score":18.3},{"n":6,"g":"......SM..M...S...........S.S.M.....","h":"..............................","v":".x...............=.........=.=","sol":"SSMSMMSMMSMSMSSMSMSSMSMMMMSMSSMMSMSS","score":18.9},{"n":6,"g":"...............M.M......S.SS........","h":"....=.....x......x.......=....","v":".............=................","sol":"MMSMSSSMMSMSMSSMSMMSMSMSSMSSMMSSMMSM","score":18.9},{"n":6,"g":"...S.......S.M..S.................M.","h":"x.......................x...x.","v":"..=.......................x...","sol":"MSMSMSMSMMSSSMSMSMMMSSMSSSMMSMSMSSMM","score":19.4},{"n":6,"g":"......M....S....M................M..","h":"...........=................x.","v":".=..........x.............=...","sol":"MSMSSMMSSMMSSMMSMSMSMSSMSMSMMSSMSMSM","score":19.4},{"n":6,"g":".S...M.........S.S.MM..........S....","h":".x............................","v":"............................=.","sol":"MSMSSMSMSMSMMSMSMSSMMSSMSMSMMSMSSMMS","score":19.6},{"n":6,"g":"..M....S................M.S......S..","h":".x....x.......=.....x.........","v":"..........=..................x","sol":"SSMSMMSSMMSMMMSMSSSMMSMSMSSMSMMMSSMS","score":19.6},{"n":6,"g":"...M.S.................S..........M.","h":"........x.......x..x.=....x..x","v":"......=.......................","sol":"SMSMMSMSSMSMMSMSSMSMSMMSSMMSSMMSMSMS","score":19.8},{"n":6,"g":"..M.........M...............S..S....","h":"..........x...........x.......","v":"..............x=...x....=...x.","sol":"SMMSSMSMSSMMMSMMSSSMSMMSMSMSSMMSSMMS","score":20},{"n":6,"g":".......S............SS.............M","h":".....x........................","v":".=........=.x.x...............","sol":"MSSMMSMSMMSSSMMSSMMMSSMSSSMMSMSMSSMM","score":20.1},{"n":6,"g":"...SM..M...........S..S..........S..","h":"........=.....................","v":"....................x...=.....","sol":"MSMSMSSMSMMSMSSMSMMSMSSMSMSMMSSMMSSM","score":20.6},{"n":6,"g":".............M....M...........SM....","h":".........=....=............xx.","v":"...........=..=...............","sol":"MSMMSSSSMSMMSMSSMMMMSMSSMSMSMSSMSMSM","score":22.2},{"n":6,"g":"M.......M...S...S..................M","h":"...........=......=....=..x..x","v":".........................=....","sol":"MSSMMSMSMSMSSMMSSMMSSMMSSMMSSMSMSMSM","score":22.3},{"n":6,"g":".....M.S........S...........S....M..","h":"................=.............","v":"x.............=..=............","sol":"MSMSSMSSMSMMMMSMSSMSSMMSSMMSSMSMSMMS","score":22.5},{"n":6,"g":"..M.......M.......S.......M........S","h":"...x......x...=...............","v":".......=..............x.......","sol":"SSMMSMMMSSMSSMSSMMSSMMSMMSMSMSMMSMSS","score":22.5},{"n":6,"g":"...M....M...S.......S........S.M....","h":".............=..=........=....","v":"..............................","sol":"SSMMSMMSMSSMSMSMMSMSSMSMSMMSMSMMSSMS","score":22.6},{"n":6,"g":"M..M....M.......M........M..........","h":"=..........=..................","v":"...............==.............","sol":"MMSMSSSMMSSMMSSMMSMSSMMSSMMSSMSSMSMM","score":22.6},{"n":6,"g":"...M....S........M.S.S..............","h":"....x.........................","v":".....=.......x..........=...xx","sol":"MSSMMSMSSMMSSMMSSMMSMSSMSMSMMSSMMSSM","score":22.9},{"n":6,"g":"......M....................S.M.....M","h":".......=......................","v":".=...........x=.............x.","sol":"MSMMSSMSMMSSSMSSMMMSSMMSSMMSSMSMSSMM","score":23.5},{"n":6,"g":"..............M..M..........S.....S.","h":".......=.......x..............","v":"=x........................=..x","sol":"MSSMMSMMSSMSSSMMSMSMSSMMMSMMSSSMMSSM","score":24.1},{"n":6,"g":"M.................M.....S......S..S.","h":".......=................=.....","v":"...........................=..","sol":"MSMMSSSMSSMMSMSMMSMSMMSSSMSSMMMSMSSM","score":24.4},{"n":6,"g":"....S........S...........M..S...M...","h":"=..........=...x..x...........","v":".................=............","sol":"MMSMSSSMMSSMMSSMMSMSMSMSSMSMSMSSMSMM","score":24.7},{"n":6,"g":".....S......S..........M..S.........","h":".........=...................=","v":"..............=..........x.=..","sol":"MMSMSSMMSMSSSSMSMMSSMMSMMMSSMSSSMSMM","score":25},{"n":6,"g":"..........S......M.....M.......S....","h":"............................=.","v":"..........=........=..........","sol":"SMSMMSMSMMSSMSMSSMSMSSMMSMSMMSMSMSSM","score":25.5},{"n":6,"g":"....S....................M...SM.....","h":".....x..xx.x....=.............","v":"............=.............=...","sol":"SMSMSMSMSMSMMSMSMSMSSMSMSMMSMSMSMSMS","score":27.5},{"n":6,"g":"........S...S..............MS.......","h":"xx.....x........=.............","v":".....=...=x.....x.............","sol":"MSMSMSMSSMMSSMSMSMSMMSMSMSSMSMSMMSSM","score":28.7},{"n":6,"g":"...S....SM...........M.M..S........M","h":".x........=...................","v":".=....................x.......","sol":"MMSSMSMMSMSSSSMSMMSSMMSMMMSSMSSSMMSM","score":29.3},{"n":6,"g":".....S..S...M...S................S.M","h":"......=.....x..x..........x...","v":"...................x...x......","sol":"SMMSMSMSSMSMMMSMSSSMMSMSMSSMSMSSMSMM","score":31.9},{"n":6,"g":".....S.....S..M...........S.........","h":"................xx.......x....","v":"==..........................x=","sol":"MSMMSSMSSMMSSMMSSMMSMSMSSMSMSMSMSSMM","score":32.7},{"n":6,"g":"..S...M...........S...S........S....","h":"........xx.............=......","v":".........x..x.......=.........","sol":"SMSMSMMSMSMSMSSMMSSMMSSMSMMSSMMSSMMS","score":33.1},{"n":6,"g":".....S..S....M.........M.S..M.......","h":"..............................","v":"....=.......=x..............=.","sol":"MSMMSSMMSMSSSMSSMMSSMMSMMSMSMSSMSSMM","score":33.7},{"n":6,"g":".SS......M...MM...........S...S.....","h":".................=............","v":".................x..........x=","sol":"MSSMMSMSSMMSSMMSSMMSMMSSSMSSMMSMMSSM","score":33.8},{"n":6,"g":".......MS.....S.M.S.................","h":".........x..................=.","v":"...........x...............=..","sol":"MSMSSMSMSMSMMMSSMSSSMSMMMSMMSSSMSMMS","score":33.9},{"n":6,"g":"......M.S.S.....S...............S...","h":"...............xx.......x....=","v":"....................xx........","sol":"MSMSMSMMSMSSSSMMSMMSMSMSSMSMSMSMSSMM","score":34.1},{"n":6,"g":".......M................M..S.......M","h":"...=......=............=......","v":"..........................x...","sol":"MSSMMSSMMSMSSSMMSMMMSSMSMSMSSMSMSMSM","score":34.2},{"n":6,"g":"S..............S.........M..M...S...","h":".....=.............=.....x....","v":"=...x.........................","sol":"SMMSMSSSMMSMMMSSMSMSMMSSSMSSMMMSSMSM","score":34.9},{"n":6,"g":"M.....M.M.........................MM","h":"....x...........x..x..x.......","v":".................x...=........","sol":"MMSSMSMSMMSSSMMSSMSMSMMSMSSMSMSSMSMM","score":35.1},{"n":6,"g":"....S...S....S...S.......S.........M","h":"..............................","v":"..........x.........==........","sol":"SMMSSMMMSMSSMSMSMSSMSMSMMSSMMSSSMSMM","score":35.6},{"n":6,"g":"..........S.S.........M....S........","h":"........................=.=...","v":"....................=.........","sol":"MSSMMSMSMMSSSMMSSMMSSMMSSMSSMMSMMSSM","score":35.9},{"n":6,"g":".......S.M..........S......S........","h":"............x.................","v":".....=......=x........=.......","sol":"SMSSMMSSMMSMMSMSMSMMSMSSSMMSSMMSSMMS","score":36.2},{"n":6,"g":"S.............................SM.M..","h":"..=................=..........","v":"....x...........=..x..........","sol":"SMSSMMMSMMSSMSMSMSSMSSMMMSMMSSSMSMSM","score":37},{"n":6,"g":"..................S..M...S..M..S....","h":".........x...x............=...","v":".....=......x..=..............","sol":"SMMSMSSMMSMSMSSMSMSMSMSMMSMSMSMSSMSM","score":40.3},{"n":6,"g":"...S....S....M..............M..S....","h":"............=..............x..","v":"........................=.....","sol":"MSMSSMMMSMSSSMSSMMMSMMSSSMSMMSSSMSMM","score":42.5},{"n":6,"g":"...............S...S..M.........M...","h":"...=..........................","v":"..x...=..x..........x.........","sol":"MSSMMSSSMMSMSMSSMMMSMSMSMMSMSSSMMSSM","score":46.4},{"n":6,"g":".......M..................S..S.M....","h":"..........x...=...x...........","v":"..=.........................==","sol":"MSSMSMSMSSMMMSMMSSSSMMSMMMSSMSSMMSMS","score":47.8}],"master":[{"n":6,"g":".........M.................S........","h":"...................=........x.","v":"......=......=..=.............","sol":"SSMSMMMMSMSSMSSMMSSSMSMMSMMSSMMMSMSS","score":36.7},{"n":6,"g":"..S.M......S.................S......","h":".............x................","v":".......=x......=...........x..","sol":"SMSSMMMSMSMSMSSMSMSMSMSMSMMSMSMSMMSS","score":44.8},{"n":6,"g":".........S.M......M..........S......","h":"=........x.........x.=....x...","v":".............x............xx..","sol":"SSMSMMMSMSSMSMSMMSMSSMSMSMMSMSMMSMSS","score":44.8},{"n":6,"g":"...........................M........","h":".....=...=.=................=.","v":"..............x............=..","sol":"SMMSSMSSMSMMMSSMMSSMMSSMMMSMSSMSSMMS","score":45.9},{"n":6,"g":"......MM....M.......................","h":".......................x.x....","v":"...............x=...........x.","sol":"SMMSSMMMSMSSMSSMMSSSMSMMSMSMSMMSMSMS","score":46.1},{"n":6,"g":"..S..............S........M.......M.","h":"......=................x......","v":"...=..=.....................x.","sol":"SMSMSMMSSMSMMSMSMSSMSSMMMSMMSSSMMSMS","score":46.6},{"n":6,"g":".S........MS.........M..............","h":"...................x.....x...x","v":"...x..........=.........=.x...","sol":"MSMMSSMSMSMSSMSSMMMSSMSMSMMSMSSMSMSM","score":46.6},{"n":6,"g":"........S..SM..............S........","h":"....x........................=","v":".......=.......x..x.x.........","sol":"SSMMSMMMSMSSMMSSMSSSMMSMMMSSMSSSMSMM","score":48.1},{"n":6,"g":".......S...M........S...............","h":".........xx.....x.xx....=.....","v":".x.............=..........x...","sol":"SMMSMSMSMSSMMSSMMSSMSMSMSSMSMMMMSMSS","score":48.3},{"n":6,"g":".M......S.............S..S..........","h":"..x...........x.....=......=..","v":"=...............x.............","sol":"SMSMSMSMSSMMMSMSMSMMSMSSSSMSMMMSMMSS","score":49.1},{"n":6,"g":".....M..........................M...","h":"..x.......=.....=.............","v":"..........=......x....=.......","sol":"MSSMSMSMMSMSMMSSMSMSSMSMSSMMSMSMMSMS","score":49.2},{"n":6,"g":".....M...................M.......S..","h":".....=.x.....=................","v":"..........................=...","sol":"SMSMSMSSMSMMMSSMMSMMSMSSSMMSSMMSMSMS","score":49.4},{"n":6,"g":"......M............M.......M........","h":"..........=................xxx","v":".=......x.....xx........x.x...","sol":"SMMSMSMMSSMSSSMMSMMMSSMSSSMMSMMSSMSM","score":49.5},{"n":6,"g":".......S............M...............","h":".....................=........","v":"...=..x....=..........x=......","sol":"MSMMSSMSSMSMSMSSMMMSMMSSSMMSMSSMSSMM","score":51.2},{"n":6,"g":"..............S............M......S.","h":"..=.x=.....x...=..............","v":"....x.......=.................","sol":"MMSSMSSSMMSMMMSSMSMMSSMSSSMMSMSSMMSM","score":51.2},{"n":6,"g":"S..........M...S....................","h":".......................=...=..","v":".=..x....................x...x","sol":"SMSSMMSMSMSMMSMSMSMSSMMSSMMSSMMSMMSS","score":51.3},{"n":6,"g":"..M......................M....M.....","h":".........x.=........=.........","v":"...=......=...................","sol":"SMMSSMSMMSMSMSSMMSSSMMSMMMSSMSMSSMSM","score":52},{"n":6,"g":".............M.....S.............S..","h":"....................=.........","v":"..==..=.........=......x......","sol":"SSMMSMMSMMSSMMSSMSSSMSMMMMSMSSSMSSMM","score":52.4},{"n":6,"g":"................M.....M......S......","h":"...=......................=...","v":"........=....x................","sol":"MSMSSMMSSMSMSMSMMSSSMSMMMMSMSSSMMSMS","score":52.7},{"n":6,"g":"...........................S........","h":"..............=.............=.","v":"......x....=.=..x.............","sol":"MSMMSSMSMSSMSMSSMMMMSMSSSSMSMMSMSMMS","score":53.3},{"n":6,"g":"..M.................................","h":".x........x.=.....x..=......=.","v":".....x.........=..............","sol":"MSMSSMMSMMSSSMSSMMSMMSMSMSSMSMSMSMMS","score":54.5},{"n":6,"g":"M................M..................","h":"....................=....x....","v":"...==.......=...=.........=..=","sol":"MSSMMSSMSMMSMSMSSMMMSMSSSSMSMMSMMSSM","score":54.9},{"n":6,"g":".S.................................S","h":"........=..x....=.....x..x..x.","v":".................=.=........x.","sol":"MSSMSMSMMSSMSMSMMSMSSMMSMSMSSMSMMSMS","score":56.3},{"n":6,"g":"....M..M.........M......S...........","h":"........=.................x...","v":".........=......=..=..........","sol":"MSMSMSSMSMMSMSSMSMSMMSSMSMSMMSMSMSSM","score":56.5},{"n":6,"g":"..............S........M.M........S.","h":"=......=.x..............=..x..","v":"..............................","sol":"SSMSMMSSMMSMMMSSMSSSMSMMMMSMSSMMSMSS","score":58.2},{"n":6,"g":".S.......S.......................MS.","h":"..................=..x.....x..","v":"..x..==.........x.............","sol":"MSSMMSSMMSMSSMMSSMMSSMMSMSMSSMSMSMSM","score":58.3},{"n":6,"g":".......M..............MS.......SM...","h":"...........=.x........=.....=.","v":"..............................","sol":"SMSMMSSMMSMSMSSMSMMMSSMSSSMMSMMSMSSM","score":58.6},{"n":6,"g":"S..S.......M......S.................","h":".......=.....=..x.....x.......","v":"..............................","sol":"SMMSMSSSMMSMMSSMMSSMSSMMMSMSSMMMSMSS","score":59.9},{"n":6,"g":"..M.........................M.......","h":"x.............=...............","v":"...=.xx.x.......x.........x...","sol":"MSMSMSSMMSSMMMSMSSMSSMMSSSMSMMSMSMSM","score":60.1},{"n":6,"g":"M.....................M....M........","h":"......=......................=","v":".....=.............=..........","sol":"MSMMSSSMMSMSSMSMSMMSMSMSMSSMSMSMSSMM","score":60.2},{"n":6,"g":"........................S...........","h":"....x....=....x.=.....x.=.....","v":"........x...............x.....","sol":"SSMMSMMMSMSSSMMSMSMSSMSMSSMSMMMMSSMS","score":61},{"n":6,"g":"................M..............M.M..","h":"x.=......................x....","v":".............x.x.........x..=.","sol":"MSMMSSSMMSSMMMSSMSMSSMSMSSMSMMSMSMMS","score":61.5},{"n":6,"g":"...........S.................S......","h":".........=..x........=...x....","v":".=.x.............x............","sol":"MSMSSMMSMMSSSMSMMSSMMSSMMSSMMSSMSSMM","score":62.3},{"n":6,"g":"......M....S......M.................","h":"x..........................=..","v":".=.......=x...................","sol":"MSMSSMMSMMSSSMSMMSMSMSSMSMSMMSSMSSMM","score":62.7},{"n":6,"g":".....................S..............","h":"=.......=........x............","v":"................x...=........=","sol":"SSMMSMMSSMMSSMSSMMSMMSSMMSMMSSMMSSMS","score":63.1},{"n":6,"g":".....M...............M.M......M.....","h":".....=...x.=.........x........","v":".........x....................","sol":"SMMSSMMMSSMSMSSMMSSSMMSMSMSSMMMSMMSS","score":63.3},{"n":6,"g":"M..........S........................","h":"=.........x...........x....x..","v":"....=............x..........=.","sol":"MMSMSSMSMMSSSMSSMMMMSMSSSSMSMMSSMSMM","score":73},{"n":6,"g":"..........M..S.........M...........M","h":"......=................x......","v":"...........x...x..=........=..","sol":"SMSMMSMSSMMSMSMSSMSMSMSMSMMSMSMSMSSM","score":73.3},{"n":6,"g":"......................M........M....","h":"........x....=......=......x..","v":".x=................x..........","sol":"MSSMMSSMSMSMMSMSSMMMSSMSSSMMSMSMMSMS","score":76.1},{"n":6,"g":".S..................................","h":".......x................x....x","v":".....=...x=.............=.....","sol":"MSMMSSMSSMMSSMSSMMMSMSSMSMSMMSSMMSSM","score":81.3},{"n":6,"g":"......S.....S...........M........M..","h":".x............................","v":".x.....x.x.....x.............=","sol":"MMSSMSSSMMSMSMMSMSMSSMMSMSMSSMSMSMSM","score":84.6},{"n":6,"g":"S..........S.....S......M...........","h":"...................x..........","v":"...x=.x............x..........","sol":"SMSSMMSMSMMSMSMMSSSMMSSMMSSMMSMSMSSM","score":85.1},{"n":6,"g":"...........M.............S....M.....","h":".......xx.....................","v":"....=........x...=........=.=.","sol":"SMSMSMSMSMSMMSMSMSMMSMSSSSMSMMMSMSMS","score":87},{"n":6,"g":"...S..............S....M............","h":"x.x......=..x..xx......=......","v":".....................x........","sol":"SMMSMSMMSMSSMSMSSMSMSSMMMSSMMSSSMMSM","score":88.2},{"n":6,"g":".........M..............M....M......","h":".....=........................","v":".....=..=..................=..","sol":"SMSMSMSSMMSMMSMSMSSMSMMSMSMSSMMMSSMS","score":88.4},{"n":6,"g":"......S...............S.............","h":".......xx...............=.....","v":"..=..=.......=.x.........=....","sol":"MSSMSMSMSMSMMSMSMSMSMMSSSMSSMMSMMSMS","score":88.7},{"n":6,"g":"........M.............S.............","h":"=........x...........x....=.x.","v":"x........=....................","sol":"MMSMSSSMMSMSSSMSMMMMSMSSSSMSMMMSSMSM","score":88.8},{"n":6,"g":"......S......M..........S.S.........","h":"...=..........................","v":".......x.......x......=.......","sol":"MSMSSMSSMSMMMMSMSSSSMSMMSMSMMSMMSMSS","score":89.5},{"n":6,"g":"S..............................M....","h":"....................=.x.......","v":"x...==..=.....................","sol":"SSMMSMMSSMSMMMSSMSSSMSMMMMSMSSSMMSMS","score":102.9},{"n":6,"g":".M.....M.......S.S..................","h":"....x............x..x...=....x","v":"..............................","sol":"SMSMSMSMSSMMMSMSMSSMSMSMMSMMSSMSMSMS","score":103.5}]};
+</script>
+<script>
+(function () {
+'use strict';
+const E = window.TGE;
+const LEVELS = [
+  { key: 'easy', name: 'Easy', code: 'E', n: 6 },
+  { key: 'medium', name: 'Medium', code: 'M', n: 6 },
+  { key: 'hard', name: 'Hard', code: 'H', n: 6 },
+  { key: 'master', name: 'Master', code: 'X', n: 6, dare: true },
+];
+const LV = Object.fromEntries(LEVELS.map(l => [l.key, l]));
+const $ = id => document.getElementById(id);
+function rays() { let s = ''; for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, c = Math.cos(a), d = Math.sin(a); s += '<line x1="' + (12 + 7.6 * c).toFixed(2) + '" y1="' + (12 + 7.6 * d).toFixed(2) + '" x2="' + (12 + 10.4 * c).toFixed(2) + '" y2="' + (12 + 10.4 * d).toFixed(2) + '"/>'; } return s; }
+const SUN = '<svg class="sunI" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.4"/>' + rays() + '</svg>';
+const MOON = '<svg class="moonI" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.2 2.6a9.6 9.6 0 1 0 6.2 13.1 7.6 7.6 0 0 1-6.2-13.1z"/></svg>';
+const SYM = ['', 'sun', 'moon'];
+
+// ---------- puzzles ----------
+const PUZ = {}, LIST = {}, GEN = {};
+function fromStrings(p) {
+  return { n: p.n, givens: Int8Array.from(p.g, ch => '.SM'.indexOf(ch)), h: Int8Array.from(p.h, ch => '.=x'.indexOf(ch)), v: Int8Array.from(p.v, ch => '.=x'.indexOf(ch)), sol: Int8Array.from(p.sol, ch => '.SM'.indexOf(ch)), score: p.score };
+}
+function mkPuz(id, level, num, p, gen) { return Object.assign(fromStrings(p), { id, level, num, gen: !!gen }); }
+LEVELS.forEach(L => {
+  LIST[L.key] = []; GEN[L.key] = [];
+  (INVENTORY[L.key] || []).forEach((p, i) => { const id = L.code + String(i + 1).padStart(2, '0'); PUZ[id] = mkPuz(id, L.key, i + 1, p); LIST[L.key].push(id); });
+});
+
+const WARM = 20;
+function isWarm(p) { return p.level === 'easy' && !p.gen && p.num <= WARM; }
+
+// ---------- storage (per browser) ----------
+const KEY = 'solstice.v4';
+let storageOK = true;
+function blank() { return { v: 1, p: {}, gen: {}, set: { err: true, theme: 'light' }, last: null }; }
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 1) return Object.assign(blank(), s); } catch (e) { storageOK = false; } return blank(); }
+let store = load();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); storageOK = true; } catch (e) { storageOK = false; } }
+function addGenerated(g) { const lv = g.level; PUZ[g.id] = mkPuz(g.id, lv, GEN[lv].length + 1, g, true); GEN[lv].push(g.id); }
+Object.values(store.gen).sort((a, b) => (a.t || 0) - (b.t || 0)).forEach(addGenerated);
+
+// ---------- worker ----------
+function handle(msg, post) {
+  const T = (typeof self !== 'undefined' && self.TGE) ? self.TGE : window.TGE;
+  const giv = P => P.givens.filter(x => x).length;
+  const CRIT = {
+    easy: { n: 6, pEdge: 0.45, ease: g => g.maxTier <= 2 && g.counts[2] >= 1, ok: g => g.maxTier === 2 && g.counts[2] >= 2 && g.score <= 9 },
+    medium: { n: 6, pEdge: 0.7, ok: g => g.maxTier === 3 && g.counts[3] >= 2 && g.score >= 10 },
+    hard: { n: 6, pEdge: 0.6, ok: (g, P) => g.maxTier === 5 && g.counts[6] === 0 && g.counts[5] >= 1 && g.counts[5] <= 3 && g.maxChain >= 1 && g.maxChain <= 4 && giv(P) >= 4 },
+    master: { n: 6, pEdge: 1, ok: g => g.maxTier >= 5 && ((g.counts[5] + g.counts[6] >= 3 && g.maxChain >= 4) || g.counts[6] >= 1) && g.maxChain <= 12 },
+  };
+  const id = msg.id;
+  const lineCells = (G, ls) => (ls || []).map(l => G.lines[l].cells);
+  if (msg.type === 'hint') {
+    const G = T.makeGeom(msg.P);
+    const wrong = []; msg.board.forEach((v, i) => { if (v && v !== msg.sol[i]) wrong.push(i); });
+    if (wrong.length) return post({ id, kind: 'wrong', cells: wrong });
+    const st = T.findStep(G, Int8Array.from(msg.board), {});
+    if (!st) return post({ id, kind: 'none' });
+    const set = st.kind === 'line' ? [st.focus] : st.set;
+    return post({ id, kind: 'step', tier: st.tier, tierName: T.TIER_NAMES[st.tier], text: st.text, set, lines: lineCells(G, st.lines), chain: st.chain || null, options: st.options || null, focusPos: st.focusPos });
+  }
+  if (msg.type === 'why') {
+    const G = T.makeGeom(msg.P); const c = msg.cell, val = msg.board[c];
+    const t = Int8Array.from(msg.P.givens);
+    let ignored = 0;
+    msg.board.forEach((v, i) => { if (i === c || !v || msg.P.givens[i]) return; if (v === msg.sol[i]) t[i] = v; else ignored++; });
+    if (val !== msg.sol[c]) {
+      t[c] = val; const chain = [];
+      for (let k = 0; k < 400; k++) {
+        const ct = T.findContradiction(G, t);
+        if (ct) return post({ id, kind: 'why', verdict: 'wrong', chain, reason: ct.text, ignored, lines: ct.line !== undefined ? lineCells(G, [ct.line]) : [] });
+        const st = T.findStep(G, t, { maxTier: 4, noTrials: true });
+        if (!st) break;
+        T.applyStep(t, st); chain.push(st.text);
+      }
+      return post({ id, kind: 'why', verdict: 'wrong', chain: [], reason: null, ignored });
+    }
+    const steps = []; let maxT = 0;
+    for (let k = 0; k < 400; k++) {
+      const st = T.findStep(G, t, {});
+      if (!st) break;
+      T.applyStep(t, st); steps.push(st); if (st.tier > maxT) maxT = st.tier;
+      if (t[c]) break;
+    }
+    const last = steps[steps.length - 1];
+    return post({ id, kind: 'why', verdict: t[c] === val ? 'ok' : 'unknown', count: steps.length, maxName: T.TIER_NAMES[maxT], last: last ? last.text : '', lastTier: last ? last.tier : 0, ignored, lines: last ? lineCells(G, last.lines) : [], chain: last && last.chain ? last.chain : null });
+  }
+  if (msg.type === 'gen') {
+    const L = CRIT[msg.level]; const t0 = Date.now(); let tries = 0, seed = msg.seed >>> 0;
+    while (Date.now() - t0 < 300000) {
+      seed = (seed + 1) >>> 0; tries++;
+      const rng = T.mulberry32(seed);
+      const M = T.makePuzzle(L.n, rng, { pEdge: L.pEdge || 0.35 });
+      let g = T.grade(M.P);
+      if (L.ease && !L.ok(g)) g = T.ease(M, rng, L.ease, 25);
+      post({ id, kind: 'progress', tries, secs: Math.round((Date.now() - t0) / 1000) });
+      if (!g.solved || !L.ok(g, M.P)) continue;
+      const cs = T.countSolutions(M.P, 2); if (cs.count !== 1) continue;
+      const P = M.P;
+      return post({ id, kind: 'gen', puzzle: { n: L.n, g: Array.from(P.givens).map(v => '.SM'[v]).join(''), h: Array.from(P.h).map(v => '.=x'[v]).join(''), v: Array.from(P.v).map(v => '.=x'[v]).join(''), sol: Array.from(cs.solution).map(v => '.SM'[v]).join(''), score: g.score, seed } });
+    }
+    return post({ id, kind: 'genfail' });
+  }
+  if (msg.type === 'import') {
+    const cs = T.countSolutions(msg.P, 2);
+    if (cs.count !== 1) return post({ id, kind: 'import', ok: false });
+    const g = T.grade(msg.P);
+    return post({ id, kind: 'import', ok: true, sol: Array.from(cs.solution).map(v => '.SM'[v]).join(''), score: g.score });
+  }
+}
+let worker = null, reqId = 0; const pending = {};
+try {
+  const src = $('engine').textContent + '\nconst handle=' + handle.toString() + ';\nself.onmessage=e=>handle(e.data,m=>self.postMessage(m));';
+  worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+  worker.onmessage = e => { const cb = pending[e.data.id]; if (cb) cb(e.data); };
+  worker.onerror = () => { worker = null; };
+} catch (e) { worker = null; }
+function ask(msg, onMsg) {
+  const id = ++reqId; msg.id = id;
+  return new Promise(resolve => {
+    const cb = m => { if (m.kind === 'progress') { onMsg && onMsg(m); return; } delete pending[id]; resolve(m); };
+    pending[id] = cb;
+    if (worker) worker.postMessage(msg); else setTimeout(() => handle(msg, m => cb(m)), 20);
+  });
+}
+function plainP(puz) { return { n: puz.n, givens: Array.from(puz.givens), h: Array.from(puz.h), v: Array.from(puz.v) }; }
+
+// ---------- game state ----------
+let level = 'easy', G = null, cursor = 0, mode = 'cycle';
+let hl = { lines: new Set(), targets: new Set(), wrong: new Set() };
+function rec(id) { return store.p[id] || (store.p[id] = { b: '', t: 0, pen: 0, h: 0, c: 0, done: false, best: null, clean: false }); }
+function openPuzzle(id) {
+  const puz = PUZ[id]; if (!puz) return;
+  if (G) persist();
+  level = puz.level;
+  const r = rec(id), N = puz.n * puz.n;
+  const board = Int8Array.from(puz.givens);
+  if (r.b && r.b.length === N) for (let i = 0; i < N; i++) if (!puz.givens[i]) board[i] = +r.b[i];
+  G = { puz, board, hist: [], fut: [], elapsed: r.t || 0, pen: r.pen || 0, hints: r.h || 0, checks: r.c || 0, done: !!(r.done && isSolved(puz, board)) };
+  cursor = puz.givens.findIndex(v => !v); if (cursor < 0) cursor = 0;
+  clearHL(); store.last = id; save();
+  buildBoard(); render(); renderLevels(); renderList(); showShareCode(); setReason(defaultReason());
+  $('doneCard').hidden = true; $('clearConfirm').hidden = true;
+  if (G.done) showDone();
+}
+function persist() {
+  if (!G) return; const r = rec(G.puz.id);
+  r.b = Array.from(G.board).join(''); r.t = Math.round(G.elapsed); r.pen = G.pen; r.h = G.hints; r.c = G.checks; save();
+}
+function isSolved(puz, b) { for (let i = 0; i < b.length; i++) if (b[i] !== puz.sol[i]) return false; return true; }
+
+// ---------- hint cooldown & timer ----------
+let hintReadyAt = 0;
+function hintTick() {
+  const b = $('bHint'); const left = Math.ceil((hintReadyAt - Date.now()) / 1000);
+  const html = left > 0 ? 'Hint <span class="cd">' + left + 's</span>' : 'Hint';
+  if (b.innerHTML !== html) b.innerHTML = html;
+  b.disabled = !G || G.done || left > 0;
+}
+let lastTick = performance.now();
+setInterval(() => {
+  const now = performance.now(), dt = now - lastTick; lastTick = now;
+  if (G && !G.done && document.visibilityState === 'visible' && !$('playView').hidden) G.elapsed += dt;
+  drawTimer(); hintTick();
+}, 250);
+setInterval(() => { if (G && !G.done) persist(); }, 5000);
+document.addEventListener('visibilitychange', () => { lastTick = performance.now(); if (document.visibilityState !== 'visible') persist(); });
+function fmt(ms) { const s = Math.floor(ms / 1000); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, ss = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : String(m).padStart(2, '0')) + ':' + String(ss).padStart(2, '0'); }
+function drawTimer() {
+  if (!G) return; const t = $('timer');
+  t.firstChild.nodeValue = fmt(G.elapsed);
+  const bits = []; if (G.pen) bits.push('+' + G.pen + 's'); if (G.hints) bits.push(G.hints + ' hint' + (G.hints === 1 ? '' : 's'));
+  t.lastChild.textContent = bits.join(' · ');
+}
+
+// ---------- board ----------
+let signEls = [];
+function buildBoard() {
+  const { n } = G.puz; const b = $('board');
+  b.style.setProperty('--n', n); $('bwrap').style.setProperty('--n', n);
+  $('colnums').innerHTML = Array.from({ length: n }, (_, i) => '<span>' + (i + 1) + '</span>').join('');
+  $('rownums').innerHTML = Array.from({ length: n }, (_, i) => '<span>' + (i + 1) + '</span>').join('');
+  let html = '';
+  for (let i = 0; i < n * n; i++) html += '<div class="cell' + (G.puz.givens[i] ? ' given' : '') + '" data-i="' + i + '" role="gridcell"><span class="m"></span></div>';
+  signEls = [];
+  const H = n * (n - 1);
+  for (let r = 0; r < n; r++) for (let c = 0; c < n - 1; c++) { const t = G.puz.h[r * (n - 1) + c]; if (t) { signEls.push({ a: r * n + c, b: r * n + c + 1, t }); html += '<span class="sign" style="left:' + ((c + 1) / n * 100) + '%;top:' + ((r + .5) / n * 100) + '%">' + (t === 1 ? '=' : '×') + '</span>'; } }
+  for (let r = 0; r < n - 1; r++) for (let c = 0; c < n; c++) { const t = G.puz.v[r * n + c]; if (t) { signEls.push({ a: r * n + c, b: (r + 1) * n + c, t }); html += '<span class="sign" style="left:' + ((c + .5) / n * 100) + '%;top:' + ((r + 1) / n * 100) + '%">' + (t === 1 ? '=' : '×') + '</span>'; } }
+  b.innerHTML = html; b.classList.remove('won');
+  const signs = b.querySelectorAll('.sign'); signEls.forEach((s, k) => s.el = signs[k]);
+  const L = LV[G.puz.level];
+  $('ptitle').textContent = G.puz.gen ? L.name + ' · Generated ' + G.puz.num : isWarm(G.puz) ? 'Easy · Warm-up ' + G.puz.num : L.name + ' · Puzzle ' + G.puz.num;
+  $('prule').textContent = n + '×' + n + ' · ' + n / 2 + ' suns and ' + n / 2 + ' moons in every row and column · rating ' + G.puz.score;
+}
+function ruleErrors() {
+  const n = G.puz.n, b = G.board, bad = new Set(), badSigns = new Set(), half = n / 2;
+  const lines = [];
+  for (let x = 0; x < n; x++) { lines.push([...Array(n)].map((_, j) => x * n + j)); lines.push([...Array(n)].map((_, j) => j * n + x)); }
+  for (const L of lines) {
+    for (const v of [1, 2]) if (L.filter(i => b[i] === v).length > half) L.forEach(i => { if (b[i] === v) bad.add(i); });
+    for (let j = 0; j + 2 < n; j++) { const a = b[L[j]]; if (a && a === b[L[j + 1]] && a === b[L[j + 2]]) { bad.add(L[j]); bad.add(L[j + 1]); bad.add(L[j + 2]); } }
+  }
+  signEls.forEach((s, k) => { const x = b[s.a], y = b[s.b]; if (x && y && ((s.t === 1) !== (x === y))) { badSigns.add(k); bad.add(s.a); bad.add(s.b); } });
+  return { bad, badSigns };
+}
+function render() {
+  const cells = $('board').children, b = G.board;
+  const errs = store.set.err ? ruleErrors() : { bad: new Set(), badSigns: new Set() };
+  for (let i = 0; i < b.length; i++) {
+    const el = cells[i], m = el.firstChild, v = b[i];
+    const want = SYM[v];
+    if (m.dataset.v !== want) { m.dataset.v = want; m.innerHTML = v === 1 ? SUN : v === 2 ? MOON : ''; }
+    el.classList.toggle('err', errs.bad.has(i));
+    el.classList.toggle('cursor', i === cursor && document.activeElement === $('board'));
+    el.classList.toggle('hl-line', hl.lines.has(i));
+    el.classList.toggle('hl-target', hl.targets.has(i));
+    el.classList.toggle('wrong', hl.wrong.has(i));
+    el.setAttribute('aria-label', E.cellLabel({ n: G.puz.n }, i) + ' ' + (want || 'blank') + (G.puz.givens[i] ? ' (given)' : ''));
+  }
+  signEls.forEach((s, k) => s.el.classList.toggle('bad', errs.badSigns.has(k)));
+  $('bUndo').disabled = !G.hist.length || G.done; $('bRedo').disabled = !G.fut.length || G.done;
+  ['bWhy', 'bCheck'].forEach(x => $(x).disabled = G.done);
+  hintTick(); drawTimer();
+}
+function clearHL() { hl = { lines: new Set(), targets: new Set(), wrong: new Set() }; }
+
+// ---------- moves ----------
+function setCell(i, v, acc) { if (G.puz.givens[i]) return; const o = G.board[i]; if (o === v) return; G.board[i] = v; acc.push([i, o, v]); }
+function commit(acc) { if (!acc.length || G.done) return; G.hist.push(acc); G.fut = []; after(); }
+function after() { clearHL(); render(); persist(); if (isSolved(G.puz, G.board)) win(); }
+function undo() { if (!G.hist.length || G.done) return; const ch = G.hist.pop(); for (let x = ch.length - 1; x >= 0; x--) G.board[ch[x][0]] = ch[x][1]; G.fut.push(ch); clearHL(); render(); persist(); }
+function redo() { if (!G.fut.length || G.done) return; const ch = G.fut.pop(); for (const [i, , v] of ch) G.board[i] = v; G.hist.push(ch); after(); }
+function nextVal(v) { if (mode === 'sun') return v === 1 ? 0 : 1; if (mode === 'moon') return v === 2 ? 0 : 2; return (v + 1) % 3; }
+const boardEl = $('board');
+boardEl.tabIndex = 0;
+boardEl.addEventListener('click', e => {
+  const el = e.target.closest('.cell'); if (!el || !G || G.done) return;
+  const i = +el.dataset.i; cursor = i; boardEl.focus({ preventScroll: true });
+  if (G.puz.givens[i]) { render(); return; }
+  const acc = []; setCell(i, nextVal(G.board[i]), acc); commit(acc); if (!acc.length) render();
+});
+boardEl.addEventListener('contextmenu', e => {
+  const el = e.target.closest('.cell'); if (!el || !G || G.done) return; e.preventDefault();
+  const i = +el.dataset.i; cursor = i; const acc = []; setCell(i, G.board[i] === 2 ? 0 : 2, acc); commit(acc);
+});
+boardEl.addEventListener('focus', () => render()); boardEl.addEventListener('blur', () => render());
+document.addEventListener('keydown', e => {
+  if (!G || $('playView').hidden) return;
+  const tag = (e.target.tagName || '').toLowerCase(); if (tag === 'textarea' || tag === 'input') return;
+  const n = G.puz.n, key = e.key.toLowerCase();
+  if ((e.ctrlKey || e.metaKey) && key === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if (key === 'z' && !e.ctrlKey && !e.metaKey) { undo(); return; }
+  if (key === 'y') { redo(); return; }
+  if (document.activeElement !== boardEl) return;
+  const r = (cursor / n) | 0, c = cursor % n;
+  if (key === 'arrowup') cursor = Math.max(0, r - 1) * n + c;
+  else if (key === 'arrowdown') cursor = Math.min(n - 1, r + 1) * n + c;
+  else if (key === 'arrowleft') cursor = r * n + Math.max(0, c - 1);
+  else if (key === 'arrowright') cursor = r * n + Math.min(n - 1, c + 1);
+  else if (['s', 'm', ' ', 'enter', 'backspace', 'delete'].includes(key)) {
+    const o = G.board[cursor];
+    const v = key === 's' ? (o === 1 ? 0 : 1) : key === 'm' ? (o === 2 ? 0 : 2) : (key === 'backspace' || key === 'delete') ? 0 : (o + 1) % 3;
+    const acc = []; setCell(cursor, v, acc); commit(acc); e.preventDefault(); return;
+  } else return;
+  e.preventDefault(); render();
+});
+
+// ---------- win ----------
+function win() {
+  G.done = true;
+  const r = rec(G.puz.id), total = Math.round(G.elapsed + G.pen * 1000), clean = G.hints === 0 && G.checks === 0;
+  r.done = true; r.solvedAt = Date.now(); r.lastHints = G.hints;
+  if (r.best == null || total < r.best) { r.best = total; r.clean = clean; } else if (total === r.best && clean) r.clean = true;
+  persist(); $('board').classList.add('won'); render(); renderLevels(); renderList(); showDone();
+}
+function showDone() {
+  const r = rec(G.puz.id), total = Math.round(G.elapsed + G.pen * 1000);
+  const d = $('doneCard'); d.className = 'done'; d.hidden = false;
+  d.innerHTML = '<b>Solved</b>' +
+    '<span class="stat"><small>Time</small><span>' + fmt(total) + '</span></span>' +
+    '<span class="stat"><small>Hints used</small><span>' + G.hints + '</span></span>' +
+    '<span class="stat"><small>Board checks</small><span>' + G.checks + '</span></span>' +
+    '<span class="stat"><small>Best</small><span>' + fmt(r.best) + '</span></span>' +
+    (G.pen ? '<span class="muted">Time includes +' + G.pen + 's for board checks.</span>' : '') +
+    '<span style="flex:1"></span><button class="btn" id="dAgain">Play again</button><button class="btn primary" id="dNext">Next puzzle</button>';
+  $('dAgain').onclick = () => resetPuzzle();
+  $('dNext').onclick = () => { const ids = LIST[level].concat(GEN[level]); const nx = ids.find(id => !rec(id).done) || ids[(ids.indexOf(G.puz.id) + 1) % ids.length]; openPuzzle(nx); };
+}
+function resetPuzzle() { const id = G.puz.id, r = rec(id); r.b = ''; r.t = 0; r.pen = 0; r.h = 0; r.c = 0; save(); G = null; openPuzzle(id); }
+
+// ---------- reasoning ----------
+function esc(s) { return String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])); }
+function defaultReason() { return '<p class="muted">Ask for a <b>Hint</b> to see the next logical step and why it holds. Select a cell you filled and press <b>Check this cell</b> to see whether it follows from the board.</p>'; }
+function setReason(html) { $('reasonBody').innerHTML = html; }
+function optionsHTML(opts, fp) {
+  const icon = v => v === 1 ? SUN : MOON;
+  return '<div class="opts-list">' + opts.slice(0, 6).map(o => '<div class="optrow">' + o.map((v, j) => '<span class="oc' + (j === fp ? ' of' : '') + '">' + icon(v) + '</span>').join('') + '</div>').join('') + (opts.length > 6 ? '<p class="muted">…and ' + (opts.length - 6) + ' more</p>' : '') + '</div>';
+}
+function chip(t, name) { return '<span class="tier t' + t + '">' + esc(name) + '</span>'; }
+function showLines(lines, targets) { clearHL(); (lines || []).forEach(u => u.forEach(i => hl.lines.add(i))); (targets || []).forEach(i => hl.targets.add(i)); render(); }
+$('bHint').onclick = async () => {
+  if (!G || G.done || Date.now() < hintReadyAt) return;
+  hintReadyAt = Date.now() + 30000; G.hints++; persist(); drawTimer(); hintTick();
+  setReason('<p class="muted">Working out the next step…</p>');
+  const puz = G.puz;
+  const m = await ask({ type: 'hint', P: plainP(puz), sol: Array.from(puz.sol), board: Array.from(G.board) });
+  if (!G || G.puz !== puz) return;
+  if (m.kind === 'wrong') {
+    setReason('<span class="tier t5">Mistake on the board</span><p>' + (m.cells.length === 1 ? 'One of your cells disagrees' : m.cells.length + ' of your cells disagree') + ' with the solution, so no sound step can be built on the board as it stands. They are outlined in red.</p><div class="acts"><button class="btn" id="rmWrong">Clear those cells</button></div>');
+    clearHL(); m.cells.forEach(i => hl.wrong.add(i)); render();
+    $('rmWrong').onclick = () => { const acc = []; m.cells.forEach(i => setCell(i, 0, acc)); commit(acc); setReason(defaultReason()); };
+    return;
+  }
+  if (m.kind === 'none') { setReason('<p>No further deduction is available.</p>'); return; }
+  let html = chip(m.tier, m.tierName) + '<p>' + esc(m.text) + '</p>';
+  if (m.options) html += optionsHTML(m.options, m.focusPos);
+  if (m.chain && m.chain.length) html += '<ol>' + m.chain.map(x => '<li>' + esc(x) + '</li>').join('') + '</ol>';
+  html += '<div class="acts"><button class="btn primary" id="rApply">Apply this step</button><button class="btn" id="rHide">Dismiss</button></div>';
+  setReason(html); showLines(m.lines, m.set.map(x => x[0]));
+  $('rApply').onclick = () => { const acc = []; m.set.forEach(([i, v]) => setCell(i, v, acc)); commit(acc); setReason(defaultReason()); };
+  $('rHide').onclick = () => { clearHL(); render(); setReason(defaultReason()); };
+};
+$('bWhy').onclick = async () => {
+  if (!G || G.done) return;
+  const c = cursor, v = G.board[c], lab = E.cellLabel({ n: G.puz.n }, c);
+  if (G.puz.givens[c]) { setReason('<p>' + lab + ' is a given cell, so it is correct by definition. Select a cell you filled yourself.</p>'); return; }
+  if (!v) { setReason('<p>Tap a cell that holds a sun or a moon first, then press <b>Check this cell</b>. The cell you selected, ' + lab + ', is blank.</p>'); return; }
+  setReason('<p class="muted">Checking ' + lab + '…</p>');
+  const puz = G.puz;
+  const m = await ask({ type: 'why', P: plainP(puz), sol: Array.from(puz.sol), board: Array.from(G.board), cell: c });
+  if (!G || G.puz !== puz) return;
+  const what = 'The ' + SYM[v] + ' at ' + lab;
+  const ign = m.ignored ? '<p class="muted">' + m.ignored + ' other cell' + (m.ignored > 1 ? 's' : '') + ' on the board ' + (m.ignored > 1 ? 'are' : 'is') + ' wrong and ' + (m.ignored > 1 ? 'were' : 'was') + ' left out of this check.</p>' : '';
+  let html = '';
+  if (m.verdict === 'wrong') {
+    html = '<span class="tier t5">Does not hold</span><p>' + what + ' contradicts the rules.</p>';
+    if (m.reason) {
+      if (m.chain.length) html += '<p class="muted" style="margin:0">Starting from it, these steps are forced:</p><ol>' + m.chain.slice(0, 12).map(x => '<li>' + esc(x) + '</li>').join('') + (m.chain.length > 12 ? '<li>…</li>' : '') + '</ol>';
+      html += '<p>Result: ' + esc(m.reason) + '.</p>';
+    } else html += '<p>The contradiction needs a longer chain than this checker follows, but the unique solution does not agree with this cell.</p>';
+    clearHL(); hl.wrong.add(c); (m.lines || []).forEach(u => u.forEach(i => hl.lines.add(i))); render();
+  } else if (m.verdict === 'ok') {
+    const direct = m.count <= 1;
+    html = '<span class="tier ok">Holds</span><p>' + what + ' is correct. ' + (direct ? 'It follows directly from the board as it stands:' : 'It follows after ' + m.count + ' logical steps from the board as it stands (hardest step: ' + esc(m.maxName.toLowerCase()) + '). The step that settles it:') + '</p>' +
+      '<p>' + chip(m.lastTier, E.TIER_NAMES[m.lastTier]) + ' ' + esc(m.last) + '</p>';
+    if (m.chain && m.chain.length) html += '<ol>' + m.chain.map(x => '<li>' + esc(x) + '</li>').join('') + '</ol>';
+    if (!direct) html += '<p class="muted">If you filled this cell without that chain in mind, it was correct but not yet proven.</p>';
+    showLines(m.lines, [c]);
+  } else html = '<p>' + what + ' agrees with the solution, but it could not be derived from the current board.</p>';
+  setReason(html + ign);
+};
+$('bCheck').onclick = () => {
+  if (!G || G.done) return;
+  G.pen += 15; G.checks++; persist(); drawTimer();
+  const wrong = []; let filled = 0;
+  G.board.forEach((v, i) => { if (G.puz.givens[i] || !v) return; filled++; if (v !== G.puz.sol[i]) wrong.push(i); });
+  clearHL(); wrong.forEach(i => hl.wrong.add(i)); render();
+  if (!wrong.length) setReason('<span class="tier ok">All clear</span><p>All ' + filled + ' cells you filled agree with the solution.</p>');
+  else {
+    setReason('<span class="tier t5">' + wrong.length + ' wrong</span><p>' + wrong.length + ' of your ' + filled + ' filled cells ' + (wrong.length === 1 ? 'disagrees' : 'disagree') + ' with the solution. They are outlined in red.</p><div class="acts"><button class="btn" id="rmW2">Clear them</button></div>');
+    $('rmW2').onclick = () => { const acc = []; wrong.forEach(i => setCell(i, 0, acc)); commit(acc); setReason(defaultReason()); };
+  }
+};
+$('bUndo').onclick = undo; $('bRedo').onclick = redo;
+$('bClear').onclick = () => { $('clearConfirm').hidden = false; };
+$('clearNo').onclick = () => { $('clearConfirm').hidden = true; };
+$('clearYes').onclick = () => { $('clearConfirm').hidden = true; resetPuzzle(); };
+['mCycle', 'mSun', 'mMoon'].forEach(id => $(id).onclick = () => {
+  mode = id === 'mCycle' ? 'cycle' : id === 'mSun' ? 'sun' : 'moon';
+  ['mCycle', 'mSun', 'mMoon'].forEach(x => $(x).setAttribute('aria-pressed', String(x === id)));
+});
+
+// ---------- options & theme ----------
+$('oErr').checked = store.set.err !== false;
+$('oErr').onchange = e => { store.set.err = e.target.checked; save(); render(); };
+const SUNI = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOONI = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+function applyTheme() {
+  const dark = store.set.theme === 'dark';
+  document.body.classList.toggle('so-dark', dark);
+  const b = $('bTheme'); b.setAttribute('aria-pressed', String(dark));
+  b.innerHTML = dark ? SUNI + 'Light mode' : MOONI + 'Dark mode';
+}
+$('bTheme').onclick = () => { store.set.theme = store.set.theme === 'dark' ? 'light' : 'dark'; save(); applyTheme(); };
+applyTheme();
+
+// ---------- levels & list ----------
+function renderLevels() {
+  $('levels').innerHTML = LEVELS.map(L => {
+    const ids = LIST[L.key], solved = ids.filter(id => store.p[id] && store.p[id].done).length;
+    return '<button class="lvl ' + L.key + '" data-l="' + L.key + '" aria-pressed="' + (L.key === level) + '"><span class="nm">' + L.name + '</span><span class="meta">' + (L.dare ? 'Dare to try · ' : L.n + '×' + L.n + ' · ') + solved + '/' + ids.length + '</span><span class="bar"><i style="width:' + (ids.length ? 100 * solved / ids.length : 0) + '%"></i></span></button>';
+  }).join('');
+  $('levels').querySelectorAll('.lvl').forEach(b => b.onclick = () => {
+    const key = b.dataset.l;
+    if (LV[key].dare && !store.set.masterOk) { $('dareModal').hidden = false; $('dareGo').focus(); return; }
+    goLevel(key);
+  });
+}
+function goLevel(key) {
+  level = key; const ids = LIST[key].concat(GEN[key]);
+  const pick = ids.find(id => store.p[id] && !store.p[id].done && started(id)) || ids.find(id => !(store.p[id] && store.p[id].done)) || ids[0];
+  showView('play'); openPuzzle(pick);
+}
+$('dareGo').onclick = () => { store.set.masterOk = true; save(); $('dareModal').hidden = true; goLevel('master'); };
+$('dareBack').onclick = () => { $('dareModal').hidden = true; goLevel('hard'); };
+$('dareModal').addEventListener('click', e => { if (e.target.id === 'dareModal') $('dareModal').hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('dareModal').hidden) $('dareModal').hidden = true; });
+function started(id) { const r = store.p[id], p = PUZ[id]; if (!r || !r.b) return false; for (let i = 0; i < r.b.length; i++) if (r.b[i] !== '0' && !p.givens[i]) return true; return false; }
+function chipHTML(id, label) {
+  const r = store.p[id]; const cls = ['pchip']; const st = started(id);
+  if (r && r.done) cls.push('solved'); else if (st) cls.push('started');
+  const sub = r && r.done ? fmt(r.best) : st ? 'started' : '—';
+  return '<button class="' + cls.join(' ') + '" data-id="' + id + '" aria-current="' + (G && G.puz.id === id) + '">' + label + '<small>' + sub + '</small></button>';
+}
+function renderList() {
+  $('listTitle').textContent = LV[level].name + ' puzzles';
+  const head = t => '<div class="plhead">' + t + '</div>';
+  let html;
+  if (level === 'easy') {
+    const warm = LIST.easy.filter(id => isWarm(PUZ[id])), rest = LIST.easy.filter(id => !isWarm(PUZ[id]));
+    html = head('Warm-up') + warm.map(id => chipHTML(id, PUZ[id].num)).join('') + head('Puzzles') + rest.map(id => chipHTML(id, PUZ[id].num)).join('');
+  } else html = LIST[level].map(id => chipHTML(id, PUZ[id].num)).join('');
+  if (GEN[level].length) html += (level === 'easy' ? head('Generated') : '') + GEN[level].map(id => chipHTML(id, 'G' + PUZ[id].num)).join('');
+  $('plist').innerHTML = html;
+  $('plist').querySelectorAll('.pchip').forEach(b => b.onclick = () => openPuzzle(b.dataset.id));
+  $('bGen').disabled = genBusy;
+}
+let genBusy = false;
+$('bGen').onclick = async () => {
+  if (genBusy) return; genBusy = true; $('bGen').disabled = true;
+  const lv = level, L = LV[lv];
+  $('genStatus').textContent = 'Searching' + '…';
+  const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
+  const m = await ask({ type: 'gen', level: lv, seed }, p => { $('genStatus').textContent = 'Tried ' + p.tries + ' candidate' + (p.tries > 1 ? 's' : '') + ' · ' + p.secs + ' s'; });
+  genBusy = false; $('bGen').disabled = false;
+  if (m.kind !== 'gen') { $('genStatus').textContent = 'No puzzle met the rating in time. Try again.'; return; }
+  const id = 'G' + L.code + m.puzzle.seed.toString(36);
+  const g = Object.assign({ id, level: lv, t: Date.now() }, m.puzzle);
+  store.gen[id] = g; save(); addGenerated(g);
+  $('genStatus').textContent = 'Added as G' + PUZ[id].num + ' (rating ' + g.score + ').';
+  if (level === lv) openPuzzle(id); else renderList();
+};
+
+// ---------- share codes ----------
+const CODE_LEVEL = Object.fromEntries(LEVELS.map(l => [l.code, l.key]));
+function b64u(bytes) { let s = ''; bytes.forEach(b => s += String.fromCharCode(b)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function unb64u(t) { t = t.replace(/-/g, '+').replace(/_/g, '/'); while (t.length % 4) t += '='; return Array.from(atob(t), ch => ch.charCodeAt(0)); }
+function shareCodeFor(puz) { return puz.gen ? 'SO-' + LV[puz.level].code + puz.n + '-' + b64u(E.encode(puz)) : 'SO-' + puz.id; }
+function showShareCode() { if (G) $('shareCode').value = shareCodeFor(G.puz); }
+$('shareCode').onfocus = e => e.target.select();
+$('bCopyCode').onclick = () => {
+  const box = $('shareCode');
+  const p = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(box.value) : Promise.reject();
+  p.then(() => $('shareMsg').textContent = 'Code copied.').catch(() => { box.focus(); box.select(); $('shareMsg').textContent = 'Code selected. Press Ctrl+C or ⌘C to copy.'; });
+};
+function clueKey(P) { return Array.from(P.givens).join('') + '|' + Array.from(P.h).join('') + '|' + Array.from(P.v).join(''); }
+$('bLoad').onclick = async () => {
+  const raw = $('loadCode').value.trim(); const msg = t => { $('shareMsg').textContent = t; };
+  let m = /^SO-([EMHX])(\d\d)$/i.exec(raw);
+  if (m) {
+    const id = m[1].toUpperCase() + m[2]; if (!PUZ[id]) return msg('No fixed puzzle has that number.');
+    $('loadCode').value = ''; msg('Opened ' + LV[PUZ[id].level].name + ' puzzle ' + PUZ[id].num + '.'); openPuzzle(id); return;
+  }
+  m = /^SO-([EMHX])(\d{1,2})-([A-Za-z0-9_-]+)$/i.exec(raw);
+  if (!m) return msg('That is not a Solstice share code. Codes start with SO-.');
+  const lvKey = CODE_LEVEL[m[1].toUpperCase()], L = LV[lvKey], n = +m[2];
+  if (n !== L.n) return msg('That code has the wrong grid size for its level.');
+  let P; try { P = E.decode(n, unb64u(m[3])); } catch (e) { P = null; }
+  if (!P) return msg('That code is damaged. Copy it again in full.');
+  const key = clueKey(P);
+  const existing = Object.keys(PUZ).find(id => PUZ[id].level === lvKey && clueKey(PUZ[id]) === key);
+  if (existing) { $('loadCode').value = ''; msg('You already have this puzzle. Opened it.'); openPuzzle(existing); return; }
+  msg('Checking the puzzle…');
+  const r = await ask({ type: 'import', P: { n, givens: Array.from(P.givens), h: Array.from(P.h), v: Array.from(P.v) } });
+  if (!r.ok) return msg('Those clues do not give exactly one solution, so the puzzle cannot be loaded.');
+  let hsh = 0; for (const ch of key) hsh = (hsh * 33 + ch.charCodeAt(0)) >>> 0;
+  const id = 'S' + L.code + hsh.toString(36);
+  const g = { id, level: lvKey, t: Date.now(), n, g: Array.from(P.givens).map(v => '.SM'[v]).join(''), h: Array.from(P.h).map(v => '.=x'[v]).join(''), v: Array.from(P.v).map(v => '.=x'[v]).join(''), sol: r.sol, score: r.score, shared: true };
+  store.gen[id] = g; save(); addGenerated(g);
+  $('loadCode').value = ''; msg('Loaded into ' + L.name + ' as G' + PUZ[id].num + ' (rating ' + r.score + ').');
+  openPuzzle(id);
+};
+
+// ---------- views & progress ----------
+function showView(v) {
+  $('playView').hidden = v !== 'play'; $('progView').hidden = v !== 'prog'; $('helpView').hidden = v !== 'help';
+  $('vPlay').setAttribute('aria-pressed', String(v === 'play')); $('vProg').setAttribute('aria-pressed', String(v === 'prog')); $('vHelp').setAttribute('aria-pressed', String(v === 'help'));
+  $('levels').hidden = v === 'help'; if (v === 'prog') renderProgress(); lastTick = performance.now();
+}
+$('vPlay').onclick = () => showView('play'); $('vProg').onclick = () => { persist(); showView('prog'); }; $('vHelp').onclick = () => showView('help');
+function renderProgress() {
+  let rows = '<tr><th>Level</th><th>Solved</th><th>Without help</th><th>Hints used</th><th>Best</th><th>Average</th><th>Generated solved</th></tr>';
+  LEVELS.forEach(L => {
+    const recs = LIST[L.key].map(id => store.p[id]).filter(r => r && r.done), gen = GEN[L.key].map(id => store.p[id]).filter(r => r && r.done);
+    const all = recs.concat(gen), times = all.map(r => r.best);
+    rows += '<tr><td>' + L.name + '</td><td class="num">' + recs.length + ' / ' + LIST[L.key].length + '</td><td class="num">' + all.filter(r => r.clean).length + '</td><td class="num">' + all.reduce((a, r) => a + (r.lastHints || 0), 0) + '</td><td class="num">' + (times.length ? fmt(Math.min(...times)) : '—') + '</td><td class="num">' + (times.length ? fmt(times.reduce((a, b) => a + b, 0) / times.length) : '—') + '</td><td class="num">' + gen.length + ' / ' + GEN[L.key].length + '</td></tr>';
+  });
+  $('ptable').innerHTML = rows;
+  $('storeNote').textContent = storageOK ? 'Progress, in-progress boards and generated puzzles are saved in this browser. Use the code below to carry them to another device.' : 'This browser is blocking storage, so progress will be lost when the page closes. Copy the code below to keep it.';
+  try { $('exportBox').value = btoa(unescape(encodeURIComponent(JSON.stringify(store)))); } catch (e) { $('exportBox').value = ''; }
+}
+$('bCopy').onclick = () => {
+  const box = $('exportBox');
+  const p = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(box.value) : Promise.reject();
+  p.then(() => $('copyMsg').textContent = 'Copied.').catch(() => { box.focus(); box.select(); $('copyMsg').textContent = 'Selected. Press Ctrl+C or ⌘C to copy.'; });
+};
+$('bImport').onclick = () => {
+  try {
+    const s = JSON.parse(decodeURIComponent(escape(atob($('importBox').value.trim()))));
+    if (!s || s.v !== 1 || typeof s.p !== 'object') throw 0;
+    let n = 0;
+    for (const [id, r] of Object.entries(s.p)) {
+      const mine = store.p[id];
+      if (!mine || (r.done && (!mine.done || (r.best != null && r.best < mine.best)))) { store.p[id] = r; n++; }
+    }
+    for (const [id, g] of Object.entries(s.gen || {})) if (!store.gen[id]) { store.gen[id] = g; addGenerated(g); n++; }
+    save(); renderProgress(); renderLevels(); renderList();
+    $('importMsg').textContent = 'Imported ' + n + ' record' + (n === 1 ? '' : 's') + '.';
+    if (G) { const id = G.puz.id; G = null; openPuzzle(id); }
+  } catch (e) { $('importMsg').textContent = 'That code could not be read. Paste the full code exactly as copied.'; }
+};
+$('bReset').onclick = () => { $('resetConfirm').hidden = false; };
+$('resetNo').onclick = () => { $('resetConfirm').hidden = true; };
+$('resetYes').onclick = () => {
+  const keepSet = store.set; store = blank(); store.set = keepSet;
+  LEVELS.forEach(L => { GEN[L.key].forEach(id => delete PUZ[id]); GEN[L.key] = []; });
+  save(); $('resetConfirm').hidden = true; G = null; openPuzzle(LIST.easy[0]); showView('prog');
+};
+window.addEventListener('pagehide', persist);
+
+openPuzzle(store.last && PUZ[store.last] ? store.last : LIST.easy[0]);
+})();
+
+</script>
+</body></html>
